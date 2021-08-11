@@ -289,4 +289,47 @@ class PixKeyServiceTest @Inject constructor(
     assertFalse(this.pixKeyRepository.existsByKey(key))
   }
 
+  @Test
+  @DisplayName("Should return illegal argument when the key has more than 77 characters")
+  fun shouldReturnIllegalArgumentWhenTheKeyHasMoreThan77Characters() {
+    val key = "really.long.email@example.com".padStart(length = 78, padChar = 'a')
+
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyRequest
+          .newBuilder()
+          .setAccountType(AccountType.SAVINGS)
+          .setClientId("client id")
+          .setType(PixKeyType.EMAIL)
+          .setKey(key)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code
+      )
+    }
+
+    assertFalse(this.pixKeyRepository.existsByKey(key))
+  }
+
+  @Test
+  @DisplayName("Should save a key with exactly 77 characters and return it's id")
+  fun shouldSaveAKeyWithExactly77CharactersAndReturnItSId() {
+    val key = "not.too.long.email@example.com".padStart(length = 77, padChar = 'a')
+
+    val response: PixKeyResponse = this.grpcClient.createPixKey(
+      PixKeyRequest
+        .newBuilder()
+        .setAccountType(AccountType.SAVINGS)
+        .setClientId("client id")
+        .setKey(key)
+        .setType(PixKeyType.EMAIL)
+        .build()
+    )
+
+    assertTrue(this.pixKeyRepository.existsById(response.pixId))
+    assertTrue(this.pixKeyRepository.existsByKey(key))
+  }
+
 }
