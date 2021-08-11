@@ -1,0 +1,17 @@
+micronaut:
+  application:
+    name: pixKeymanagerGrpc
+
+datasources:
+  default:
+    url: jdbc:h2:mem:default
+    driverClassName: org.h2.Driver
+    username: ''
+    password: ''
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: create-drop

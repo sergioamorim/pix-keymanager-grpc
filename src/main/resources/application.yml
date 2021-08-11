@@ -1,3 +1,21 @@
 micronaut:
   application:
     name: pixKeymanagerGrpc
+
+datasources:
+  default:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_SCHEMA}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driverClassName: org.postgresql.Driver
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: ${HIBERNATE_DDL_AUTO:}  # defaults to empty
+
+http-clients:
+  erp:
+    server_url: ${ERP_SERVER_URL}

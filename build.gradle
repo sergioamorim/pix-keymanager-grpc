@@ -4,6 +4,7 @@ plugins {
   id("com.github.johnrengelman.shadow") version "7.0.0"
   id("io.micronaut.application") version "1.5.4"
   id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
+  id("org.jetbrains.kotlin.plugin.jpa") version "1.4.32"
   id("com.google.protobuf") version "0.8.15"
 }
 
@@ -34,8 +35,14 @@ dependencies {
 
   runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-  testImplementation("io.micronaut:micronaut-http-client")
+  implementation('org.postgresql:postgresql:42.2.23')
+  implementation('io.micronaut.data:micronaut-data-hibernate-jpa:2.5.0')
+  implementation('io.micronaut.sql:micronaut-jdbc-hikari:3.4.0')
 
+  implementation("io.micronaut:micronaut-http-client:2.1.2")
+
+  testImplementation("com.h2database:h2:1.4.200")
+  testImplementation("org.mockito:mockito-junit-jupiter:3.11.2")
 }
 
 
