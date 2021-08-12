@@ -352,4 +352,22 @@ class PixKeyServiceTest @Inject constructor(
     }
   }
 
+  @Test
+  @DisplayName("Should return invalid argument when the account type is not sent")
+  fun shouldReturnInvalidArgumentWhenTheAccountTypeIsNotSent() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyRequest
+          .newBuilder()
+          .setClientId("client id")
+          .setType(PixKeyType.PHONE_NUMBER)
+          .setKey("+55667788990")
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code
+      )
+    }
+  }
 }
