@@ -1,8 +1,8 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.AccountType
-import br.com.zup.edu.sergio.pix_keymanager_grpc.PixKeyRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.PixKeyType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyType
 import java.util.*
 
 fun PixKeyRequest.isCpfKey(): Boolean = this.type.equals(PixKeyType.CPF)

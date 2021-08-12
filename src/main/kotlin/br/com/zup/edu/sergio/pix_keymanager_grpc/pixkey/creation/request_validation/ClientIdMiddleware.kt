@@ -1,6 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.PixKeyRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ExternalAccountType
 import io.grpc.Status

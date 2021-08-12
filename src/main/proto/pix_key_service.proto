@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "br.com.zup.edu.sergio.pix_keymanager_grpc";
+option java_package = "br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf";
 option objc_class_prefix = "PKS";
 
-package br.com.zup.edu.sergio.pix_keymanager_grpc;
+package br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf;
 
 service PixKeyService {
   rpc CreatePixKey (PixKeyRequest) returns (PixKeyResponse) {}

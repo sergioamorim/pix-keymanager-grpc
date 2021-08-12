@@ -1,6 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.AccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
 
 enum class ExternalAccountType {
   CONTA_CORRENTE, CONTA_POUPANCA;

@@ -1,5 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyServiceGrpc
 import io.grpc.ManagedChannel
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory

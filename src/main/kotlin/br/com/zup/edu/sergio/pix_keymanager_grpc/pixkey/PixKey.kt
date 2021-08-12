@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.AccountType
-import br.com.zup.edu.sergio.pix_keymanager_grpc.PixKeyType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyType
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
 

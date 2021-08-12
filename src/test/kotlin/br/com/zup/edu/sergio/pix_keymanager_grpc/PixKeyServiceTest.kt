@@ -2,6 +2,7 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ExternalAccountType
 import io.grpc.Status
