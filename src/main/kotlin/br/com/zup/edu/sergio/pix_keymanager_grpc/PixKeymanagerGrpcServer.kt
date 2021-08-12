@@ -2,7 +2,7 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.asPixKey
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.request_validation.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver

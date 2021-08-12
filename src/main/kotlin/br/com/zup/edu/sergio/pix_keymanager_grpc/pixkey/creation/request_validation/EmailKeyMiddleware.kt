@@ -1,4 +1,4 @@
-package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.request_validation
+package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.PixKeyRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.hasNotAValidEmailKey
