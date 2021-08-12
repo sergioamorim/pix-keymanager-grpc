@@ -7,6 +7,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ExternalAccountTyp
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -41,9 +42,13 @@ class PixKeyServiceTest @Inject constructor(
 
     mockitoWhen(
       erpClient.readAccount(
-        clientId = "invalid client id", accountType = ExternalAccountType.CONTA_POUPANCA
+        clientId = "force unavailable", accountType = ExternalAccountType.CONTA_POUPANCA
       )
-    ).thenThrow(HttpClientResponseException("not found", HttpResponse.notFound<Any>()))
+    ).thenThrow(
+      HttpClientResponseException(
+        "unavailable", HttpResponse.status<Any>(HttpStatus.SERVICE_UNAVAILABLE)
+      )
+    )
 
     return erpClient
   }
@@ -281,9 +286,7 @@ class PixKeyServiceTest @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
-      assertEquals(
-        Status.NOT_FOUND.code, statusRuntimeException.status.code
-      )
+      assertEquals(Status.NOT_FOUND.code, statusRuntimeException.status.code)
     }
 
     assertFalse(this.pixKeyRepository.existsByKey(key))
@@ -330,6 +333,23 @@ class PixKeyServiceTest @Inject constructor(
 
     assertTrue(this.pixKeyRepository.existsById(response.pixId))
     assertTrue(this.pixKeyRepository.existsByKey(key))
+  }
+
+  @Test
+  @DisplayName("Should return unavailable when the erp system returns a unknown status")
+  fun shouldReturnUnavailableWhenTheErpSystemReturnsAUnknownStatus() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyRequest
+          .newBuilder()
+          .setAccountType(AccountType.SAVINGS)
+          .setClientId("force unavailable")
+          .setType(PixKeyType.RANDOM)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(Status.UNAVAILABLE.code, statusRuntimeException.status.code)
+    }
   }
 
 }
