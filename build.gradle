@@ -65,8 +65,32 @@ tasks {
       jvmTarget = "11"
     }
   }
+  test {
+    jacoco {
+      excludes = ["**/pix_keymanager_grpc/protobuf/**"]
+    }
+    finalizedBy(tasks.jacocoTestReport)
+  }
+  jacocoTestReport {
+    dependsOn(tasks.test)
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+  }
+  jacocoTestCoverageVerification {
 
+    afterEvaluate {
+      classDirectories.from = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: ["**/pix_keymanager_grpc/protobuf/**"])
+      })
+    }
 
+    violationRules {
+      rule {
+        limit {
+          minimum = "0.9".toBigDecimal()
+        }
+      }
+    }
+  }
 }
 sourceSets {
   main {
