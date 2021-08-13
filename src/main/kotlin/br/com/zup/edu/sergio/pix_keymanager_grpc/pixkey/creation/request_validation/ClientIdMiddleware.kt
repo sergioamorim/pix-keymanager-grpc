@@ -1,5 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ExternalAccountType
@@ -10,11 +11,11 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 
 class ClientIdMiddleware(
   private val erpClient: ErpClient
-) : PixKeyCreationRequestMiddleware() {
-  override fun check(pixKeyCreationRequest: PixKeyCreationRequest): StatusRuntimeException? =
-    when (this.accountConfirmationStatus(pixKeyCreationRequest)) {
+) : RequestMiddleware<PixKeyCreationRequest>() {
+  override fun check(request: PixKeyCreationRequest): StatusRuntimeException? =
+    when (this.accountConfirmationStatus(request)) {
 
-      HttpStatus.OK -> this.checkNext(pixKeyCreationRequest)
+      HttpStatus.OK -> this.checkNext(request)
 
       HttpStatus.NOT_FOUND -> Status.NOT_FOUND
         .withDescription("account not found")

@@ -6,4 +6,6 @@ import io.micronaut.data.jpa.repository.JpaRepository
 @Repository
 interface PixKeyRepository : JpaRepository<PixKey, String> {
   fun existsByKey(key: String): Boolean
+
+  fun existsByIdAndClientId(id: String, clientId: String): Boolean
 }

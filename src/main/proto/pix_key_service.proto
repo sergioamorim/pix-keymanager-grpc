@@ -6,8 +6,14 @@ option objc_class_prefix = "PKS";
 
 package br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf;
 
+import "google/protobuf/empty.proto";
+
 service PixKeyCreationService {
   rpc CreatePixKey (PixKeyCreationRequest) returns (PixKeyCreationResponse) {}
+}
+
+service PixKeyDeletionService {
+  rpc DeletePixKey (PixKeyDeletionRequest) returns (google.protobuf.Empty) {}
 }
 
 message PixKeyCreationRequest {
@@ -19,6 +25,11 @@ message PixKeyCreationRequest {
 
 message PixKeyCreationResponse {
   string pix_id = 1;
+}
+
+message PixKeyDeletionRequest {
+  string pix_id = 1;
+  string client_id = 2;
 }
 
 enum PixKeyType {

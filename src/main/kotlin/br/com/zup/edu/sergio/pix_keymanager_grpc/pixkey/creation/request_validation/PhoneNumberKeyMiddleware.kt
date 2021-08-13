@@ -1,15 +1,16 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.hasNotAValidPhoneNumberKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isPhoneNumberKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 
-class PhoneNumberKeyMiddleware : PixKeyCreationRequestMiddleware() {
+class PhoneNumberKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
-  override fun check(pixKeyCreationRequest: PixKeyCreationRequest): StatusRuntimeException? =
-    if (pixKeyCreationRequest.isPhoneNumberKey() and pixKeyCreationRequest.hasNotAValidPhoneNumberKey()) {
+  override fun check(request: PixKeyCreationRequest): StatusRuntimeException? =
+    if (request.isPhoneNumberKey() and request.hasNotAValidPhoneNumberKey()) {
       Status.INVALID_ARGUMENT
         .withDescription("phone number key with invalid format")
         .augmentDescription(
@@ -17,7 +18,7 @@ class PhoneNumberKeyMiddleware : PixKeyCreationRequestMiddleware() {
         )
         .asRuntimeException()
     } else {
-      this.checkNext(pixKeyCreationRequest)
+      this.checkNext(request)
     }
 
 }
