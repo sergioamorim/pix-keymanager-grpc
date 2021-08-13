@@ -27,7 +27,7 @@ class PixKeyCreationEndpoint @Inject constructor(
       .linkWith(EmailKeyMiddleware())
       .linkWith(PhoneNumberKeyMiddleware())
       .linkWith(CpfKeyMiddleware())
-      .linkWith(KeySizeMiddleware())
+      .linkWith(KeyLengthMiddleware())
       .linkWith(RandomKeyMiddleware())
       .linkWith(AccountTypeMiddleware())
       .linkWith(TypeMiddleware())

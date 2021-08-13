@@ -6,7 +6,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 
-class KeySizeMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
+class KeyLengthMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
   override fun check(request: PixKeyCreationRequest): StatusRuntimeException? =
     if (request.lengthIsGreaterThan(maxLength = 77)) {
       Status.INVALID_ARGUMENT
