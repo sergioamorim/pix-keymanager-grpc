@@ -1,4 +1,4 @@
-package br.com.zup.edu.sergio.pix_keymanager_grpc
+package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
@@ -21,8 +21,8 @@ import javax.inject.Inject
 import org.mockito.Mockito.`when` as mockitoWhen
 
 @MicronautTest(transactional = false)
-class PixKeyServiceTest @Inject constructor(
-  private val grpcClient: PixKeyServiceGrpc.PixKeyServiceBlockingStub,
+class PixKeyCreationEndpointTests @Inject constructor(
+  private val grpcClient: PixKeyCreationServiceGrpc.PixKeyCreationServiceBlockingStub,
   private val pixKeyRepository: PixKeyRepository
 ) {
 
@@ -57,8 +57,8 @@ class PixKeyServiceTest @Inject constructor(
   @Test
   @DisplayName("Should save the pix key to the database and return it's id")
   fun shouldSaveThePixKeyToTheDatabaseAndReturnItSId() {
-    val response: PixKeyResponse = this.grpcClient.createPixKey(
-      PixKeyRequest
+    val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
+      PixKeyCreationRequest
         .newBuilder()
         .setAccountType(AccountType.CHECKING)
         .setClientId("ae93a61c-0642-43b3-bb8e-a17072295955")
@@ -76,7 +76,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.CHECKING)
           .setClientId("client id")
@@ -100,7 +100,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.CHECKING)
           .setClientId("client id")
@@ -124,7 +124,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.CHECKING)
           .setClientId("client id")
@@ -148,7 +148,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.SAVINGS)
           .setClientId("client id")
@@ -180,7 +180,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.CHECKING)
           .setClientId("client id")
@@ -200,8 +200,8 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldSaveAValidCpfKeyAndReturnItSId() {
     val key = "12345678901"
 
-    val response: PixKeyResponse = this.grpcClient.createPixKey(
-      PixKeyRequest
+    val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
+      PixKeyCreationRequest
         .newBuilder()
         .setAccountType(AccountType.CHECKING)
         .setClientId("client id")
@@ -219,8 +219,8 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldSaveAValidEmailKeyAndReturnItSId() {
     val key = "sergio@zup.com"
 
-    val response: PixKeyResponse = this.grpcClient.createPixKey(
-      PixKeyRequest
+    val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
+      PixKeyCreationRequest
         .newBuilder()
         .setType(PixKeyType.EMAIL)
         .setAccountType(AccountType.CHECKING)
@@ -238,8 +238,8 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldSaveAValidPhoneNumberKeyAndReturnItSId() {
     val key = "+5585988714077"
 
-    val response: PixKeyResponse = this.grpcClient.createPixKey(
-      PixKeyRequest
+    val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
+      PixKeyCreationRequest
         .newBuilder()
         .setAccountType(AccountType.SAVINGS)
         .setClientId("client id")
@@ -257,7 +257,7 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldReturnIllegalArgumentWhenACpfKeyRequestIsSentWithoutAKey() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.SAVINGS)
           .setClientId("client id")
@@ -278,7 +278,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.CHECKING)
           .setClientId("invalid client id")
@@ -300,7 +300,7 @@ class PixKeyServiceTest @Inject constructor(
 
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.SAVINGS)
           .setClientId("client id")
@@ -322,8 +322,8 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldSaveAKeyWithExactly77CharactersAndReturnItSId() {
     val key = "not.too.long.email@example.com".padStart(length = 77, padChar = 'a')
 
-    val response: PixKeyResponse = this.grpcClient.createPixKey(
-      PixKeyRequest
+    val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
+      PixKeyCreationRequest
         .newBuilder()
         .setAccountType(AccountType.SAVINGS)
         .setClientId("client id")
@@ -341,7 +341,7 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldReturnUnavailableWhenTheErpSystemReturnsAUnknownStatus() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setAccountType(AccountType.SAVINGS)
           .setClientId("force unavailable")
@@ -358,7 +358,7 @@ class PixKeyServiceTest @Inject constructor(
   fun shouldReturnInvalidArgumentWhenTheAccountTypeIsNotSent() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
-        PixKeyRequest
+        PixKeyCreationRequest
           .newBuilder()
           .setClientId("client id")
           .setType(PixKeyType.PHONE_NUMBER)

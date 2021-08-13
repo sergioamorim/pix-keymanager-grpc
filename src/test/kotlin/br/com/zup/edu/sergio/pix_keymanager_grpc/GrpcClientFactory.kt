@@ -1,6 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyServiceGrpc
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.ManagedChannel
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
@@ -10,8 +10,8 @@ import io.micronaut.grpc.server.GrpcServerChannel
 @Factory
 class GrpcClientFactory {
   @Bean
-  fun newBlockingStub(
+  fun newPixKeyCreationBlockingStub(
     @GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel
-  ): PixKeyServiceGrpc.PixKeyServiceBlockingStub =
-    PixKeyServiceGrpc.newBlockingStub(channel)
+  ): PixKeyCreationServiceGrpc.PixKeyCreationServiceBlockingStub =
+    PixKeyCreationServiceGrpc.newBlockingStub(channel)
 }

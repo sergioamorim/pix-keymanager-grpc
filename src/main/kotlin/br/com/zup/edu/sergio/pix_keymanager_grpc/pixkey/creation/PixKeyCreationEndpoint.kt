@@ -1,11 +1,10 @@
-package br.com.zup.edu.sergio.pix_keymanager_grpc
+package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.asPixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation.*
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyResponse
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyServiceGrpc
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
@@ -13,16 +12,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PixKeymanagerGrpcServer @Inject constructor(
+class PixKeyCreationEndpoint @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
   private val erpClient: ErpClient
-) : PixKeyServiceGrpc.PixKeyServiceImplBase() {
+) : PixKeyCreationServiceGrpc.PixKeyCreationServiceImplBase() {
 
-  private val pixKeyRequestMiddleware: PixKeyRequestMiddleware =
+  private val pixKeyCreationRequestMiddleware: PixKeyCreationRequestMiddleware =
     KeyUniquenessMiddleware(this.pixKeyRepository)
 
   init {
-    this.pixKeyRequestMiddleware
+    this.pixKeyCreationRequestMiddleware
       .linkWith(ClientIdMiddleware(this.erpClient))
       .linkWith(EmailKeyMiddleware())
       .linkWith(PhoneNumberKeyMiddleware())
@@ -33,18 +32,20 @@ class PixKeymanagerGrpcServer @Inject constructor(
   }
 
   override fun createPixKey(
-    pixKeyRequest: PixKeyRequest, responseObserver: StreamObserver<PixKeyResponse>
+    pixKeyCreationRequest: PixKeyCreationRequest,
+    responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
 
-    this.pixKeyRequestMiddleware.check(pixKeyRequest)?.let { error: StatusRuntimeException ->
-      responseObserver.onError(error)
-      return
-    }
+    this.pixKeyCreationRequestMiddleware.check(pixKeyCreationRequest)
+      ?.let { error: StatusRuntimeException ->
+        responseObserver.onError(error)
+        return
+      }
 
     responseObserver.onNext(
-      PixKeyResponse
+      PixKeyCreationResponse
         .newBuilder()
-        .setPixId(this.pixKeyRepository.save(pixKeyRequest.asPixKey()).id)
+        .setPixId(this.pixKeyRepository.save(pixKeyCreationRequest.asPixKey()).id)
         .build()
     )
     responseObserver.onCompleted()

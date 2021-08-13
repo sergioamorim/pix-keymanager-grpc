@@ -6,18 +6,18 @@ option objc_class_prefix = "PKS";
 
 package br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf;
 
-service PixKeyService {
-  rpc CreatePixKey (PixKeyRequest) returns (PixKeyResponse) {}
+service PixKeyCreationService {
+  rpc CreatePixKey (PixKeyCreationRequest) returns (PixKeyCreationResponse) {}
 }
 
-message PixKeyRequest {
+message PixKeyCreationRequest {
   PixKeyType type = 1;
   string key = 2;
   string client_id = 3;
   AccountType account_type = 4;
 }
 
-message PixKeyResponse {
+message PixKeyCreationResponse {
   string pix_id = 1;
 }
 
