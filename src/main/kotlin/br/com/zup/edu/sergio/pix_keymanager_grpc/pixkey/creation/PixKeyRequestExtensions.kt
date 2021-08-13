@@ -1,5 +1,6 @@
-package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey
+package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyType

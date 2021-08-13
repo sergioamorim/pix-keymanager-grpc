@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.hasNotAValidPhoneNumberKey
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.isPhoneNumberKey
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.hasNotAValidPhoneNumberKey
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isPhoneNumberKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyRequest
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
