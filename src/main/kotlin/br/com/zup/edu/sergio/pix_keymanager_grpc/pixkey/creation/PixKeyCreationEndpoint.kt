@@ -30,6 +30,7 @@ class PixKeyCreationEndpoint @Inject constructor(
       .linkWith(KeySizeMiddleware())
       .linkWith(RandomKeyMiddleware())
       .linkWith(AccountTypeMiddleware())
+      .linkWith(TypeMiddleware())
   }
 
   override fun createPixKey(

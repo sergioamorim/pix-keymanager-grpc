@@ -38,11 +38,15 @@ class ClientIdMiddleware(
         .asRuntimeException()
     }
 
-  private fun accountConfirmationStatus(pixKeyCreationRequest: PixKeyCreationRequest): HttpStatus =
+  private fun accountConfirmationStatus(
+    pixKeyCreationRequest: PixKeyCreationRequest
+  ): HttpStatus =
     try {
       this.erpClient.readAccount(
         clientId = pixKeyCreationRequest.clientId,
-        accountType = ExternalAccountType.fromAccountType(pixKeyCreationRequest.accountType)
+        accountType = ExternalAccountType.fromPixKeyCreationRequestAccountType(
+          pixKeyCreationRequest.accountType
+        )
       )
       HttpStatus.OK
     } catch (httpClientResponseException: HttpClientResponseException) {

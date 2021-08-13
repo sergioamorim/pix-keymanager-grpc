@@ -1,7 +1,5 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyType
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
 
@@ -9,7 +7,7 @@ import javax.persistence.*
 class PixKey(
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  val type: PixKeyType,
+  val type: KeyType,
 
   @Column(nullable = false)
   val key: String,
@@ -25,4 +23,12 @@ class PixKey(
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
   val id: String? = null
+
+  enum class KeyType {
+    CPF, PHONE_NUMBER, EMAIL, RANDOM
+  }
+
+  enum class AccountType {
+    CHECKING, SAVINGS
+  }
 }

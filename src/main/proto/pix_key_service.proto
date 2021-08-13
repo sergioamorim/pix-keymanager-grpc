@@ -17,10 +17,24 @@ service PixKeyDeletionService {
 }
 
 message PixKeyCreationRequest {
-  PixKeyType type = 1;
+  KeyType type = 1;
   string key = 2;
   string client_id = 3;
   AccountType account_type = 4;
+
+  enum KeyType {
+    UNKNOWN_PIX_KEY_TYPE = 0;
+    CPF = 1;
+    PHONE_NUMBER = 2;
+    EMAIL = 3;
+    RANDOM = 4;
+  }
+
+  enum AccountType {
+    UNKNOWN_ACCOUNT_TYPE = 0;
+    CHECKING = 1;
+    SAVINGS = 2;
+  }
 }
 
 message PixKeyCreationResponse {
@@ -30,18 +44,4 @@ message PixKeyCreationResponse {
 message PixKeyDeletionRequest {
   string pix_id = 1;
   string client_id = 2;
-}
-
-enum PixKeyType {
-  UNKNOWN_PIX_KEY_TYPE = 0;
-  CPF = 1;
-  PHONE_NUMBER = 2;
-  EMAIL = 3;
-  RANDOM = 4;
-}
-
-enum AccountType {
-  UNKNOWN_ACCOUNT_TYPE = 0;
-  CHECKING = 1;
-  SAVINGS = 2;
 }

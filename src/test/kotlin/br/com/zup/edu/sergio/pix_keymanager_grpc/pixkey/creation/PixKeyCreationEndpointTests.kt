@@ -2,7 +2,12 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.AccountType.CHECKING
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.AccountType.SAVINGS
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.KeyType.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ExternalAccountType
 import io.grpc.Status
@@ -60,9 +65,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setAccountType(AccountType.CHECKING)
+        .setAccountType(CHECKING)
         .setClientId("ae93a61c-0642-43b3-bb8e-a17072295955")
-        .setType(PixKeyType.RANDOM)
+        .setType(RANDOM)
         .build()
     )
 
@@ -78,9 +83,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.CHECKING)
+          .setAccountType(CHECKING)
           .setClientId("client id")
-          .setType(PixKeyType.RANDOM)
+          .setType(RANDOM)
           .setKey(key)
           .build()
       )
@@ -102,9 +107,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.CHECKING)
+          .setAccountType(CHECKING)
           .setClientId("client id")
-          .setType(PixKeyType.CPF)
+          .setType(CPF)
           .setKey(key)
           .build()
       )
@@ -126,9 +131,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.CHECKING)
+          .setAccountType(CHECKING)
           .setClientId("client id")
-          .setType(PixKeyType.PHONE_NUMBER)
+          .setType(PHONE_NUMBER)
           .setKey(key)
           .build()
       )
@@ -150,9 +155,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.SAVINGS)
+          .setAccountType(SAVINGS)
           .setClientId("client id")
-          .setType(PixKeyType.EMAIL)
+          .setType(EMAIL)
           .setKey(key)
           .build()
       )
@@ -171,10 +176,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val key = "12345678901"
     this.pixKeyRepository.save(
       PixKey(
-        type = PixKeyType.CPF,
+        type = PixKey.KeyType.CPF,
         key = key,
         clientId = "asd",
-        accountType = AccountType.SAVINGS
+        accountType = PixKey.AccountType.SAVINGS
       )
     )
 
@@ -182,9 +187,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.CHECKING)
+          .setAccountType(CHECKING)
           .setClientId("client id")
-          .setType(PixKeyType.CPF)
+          .setType(CPF)
           .setKey(key)
           .build()
       )
@@ -203,10 +208,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setAccountType(AccountType.CHECKING)
+        .setAccountType(CHECKING)
         .setClientId("client id")
         .setKey(key)
-        .setType(PixKeyType.CPF)
+        .setType(CPF)
         .build()
     )
 
@@ -222,8 +227,8 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setType(PixKeyType.EMAIL)
-        .setAccountType(AccountType.CHECKING)
+        .setType(EMAIL)
+        .setAccountType(CHECKING)
         .setClientId("client id")
         .setKey(key)
         .build()
@@ -241,10 +246,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setAccountType(AccountType.SAVINGS)
+        .setAccountType(SAVINGS)
         .setClientId("client id")
         .setKey(key)
-        .setType(PixKeyType.PHONE_NUMBER)
+        .setType(PHONE_NUMBER)
         .build()
     )
 
@@ -259,9 +264,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.SAVINGS)
+          .setAccountType(SAVINGS)
           .setClientId("client id")
-          .setType(PixKeyType.CPF)
+          .setType(CPF)
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
@@ -280,9 +285,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.CHECKING)
+          .setAccountType(CHECKING)
           .setClientId("invalid client id")
-          .setType(PixKeyType.CPF)
+          .setType(CPF)
           .setKey(key)
           .build()
       )
@@ -302,9 +307,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.SAVINGS)
+          .setAccountType(SAVINGS)
           .setClientId("client id")
-          .setType(PixKeyType.EMAIL)
+          .setType(EMAIL)
           .setKey(key)
           .build()
       )
@@ -325,10 +330,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setAccountType(AccountType.SAVINGS)
+        .setAccountType(SAVINGS)
         .setClientId("client id")
         .setKey(key)
-        .setType(PixKeyType.EMAIL)
+        .setType(EMAIL)
         .build()
     )
 
@@ -343,9 +348,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(AccountType.SAVINGS)
+          .setAccountType(SAVINGS)
           .setClientId("force unavailable")
-          .setType(PixKeyType.RANDOM)
+          .setType(RANDOM)
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
@@ -361,7 +366,26 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setClientId("client id")
-          .setType(PixKeyType.PHONE_NUMBER)
+          .setType(PHONE_NUMBER)
+          .setKey("+55667788990")
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  @DisplayName("Should return invalid argument when the type is not sent")
+  fun shouldReturnInvalid() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setClientId("client id")
+          .setAccountType(CHECKING)
           .setKey("+55667788990")
           .build()
       )

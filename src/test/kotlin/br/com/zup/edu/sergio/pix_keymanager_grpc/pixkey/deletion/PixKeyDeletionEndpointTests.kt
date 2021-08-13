@@ -2,10 +2,8 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyType
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -34,10 +32,10 @@ class PixKeyDeletionEndpointTests @Inject constructor(
     val clientId = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
-        type = PixKeyType.CPF,
+        type = PixKey.KeyType.CPF,
         key = "12345678901",
         clientId = clientId,
-        accountType = AccountType.CHECKING
+        accountType = PixKey.AccountType.CHECKING
       )
     ).id ?: "should fail"
 
@@ -73,10 +71,10 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   fun shouldReturnPermissionDeniedWhenTheKeyExistsButTheClientIdDoesNotMatch() {
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
-        type = PixKeyType.CPF,
+        type = PixKey.KeyType.CPF,
         key = "12345678901",
         clientId = UUID.randomUUID().toString(),
-        accountType = AccountType.CHECKING
+        accountType = PixKey.AccountType.CHECKING
       )
     ).id ?: "should fail"
 
