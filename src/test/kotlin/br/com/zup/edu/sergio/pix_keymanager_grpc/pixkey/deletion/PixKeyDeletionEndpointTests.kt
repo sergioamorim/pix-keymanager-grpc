@@ -9,7 +9,6 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
@@ -27,8 +26,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should delete a existing pix key when it exists and the client id matches")
-  fun shouldDeleteAExistingPixKeyWhenItExistsAndTheClientIdMatches() {
+  fun `should delete an existing pix key when the client id matches`() {
     val clientId = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
@@ -51,8 +49,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return not found when there is no key with the id informed on the database")
-  fun shouldReturnNotFoundWhenThereIsNoKeyWithTheIdInformedOnTheDatabase() {
+  fun `should return not found when there is no key with the id informed on the database`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -67,8 +64,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return permission denied when the key exists but the client id doesn't match")
-  fun shouldReturnPermissionDeniedWhenTheKeyExistsButTheClientIdDoesNotMatch() {
+  fun `should return permission denied when the key exists but the client id doesn't match`() {
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
         type = PixKey.KeyType.CPF,
@@ -94,8 +90,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return invalid argument when the pix id is not sent")
-  fun shouldReturnInvalidArgumentWhenThePixIdIsNotSent() {
+  fun `should return invalid argument when the pix id is not sent`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -109,8 +104,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return invalid argument when the client id is not sent")
-  fun shouldReturnInvalidArgumentWhenTheClientIdIsNotSent() {
+  fun `should return invalid argument when the client id is not sent`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest

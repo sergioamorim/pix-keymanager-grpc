@@ -3,7 +3,6 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,8 +12,7 @@ class PixKeyCreationRequestExtensionsTests {
   @Nested
   inner class AsPixKeyTests {
     @Test
-    @DisplayName("Should return an equivalent PixKey when type and accountType are valid")
-    fun shouldReturnAnEquivalentPixKeyWhenTypeAndAccountTypeAreValid() {
+    fun `should return an equivalent PixKey when type and accountType are valid`() {
       val key = "12345678901"
       val clientId = "client id"
 
@@ -36,8 +34,7 @@ class PixKeyCreationRequestExtensionsTests {
     }
 
     @Test
-    @DisplayName("Should throw assertion error when is called with an invalid key type")
-    fun shouldThrowAssertionErrorWhenIsCalledWithAnInvalidKeyType() {
+    fun `should throw assertion error when called with an invalid key type`() {
       assertThrows<AssertionError> {
         PixKeyCreationRequest
           .newBuilder()
@@ -50,8 +47,7 @@ class PixKeyCreationRequestExtensionsTests {
     }
 
     @Test
-    @DisplayName("Should throw assertion error when is called with an invalid account type")
-    fun shouldThrowAssertionErrorWhenIsCalledWithAnInvalidAccountType() {
+    fun `should throw assertion error when called with an invalid account type`() {
       assertThrows<AssertionError> {
         PixKeyCreationRequest
           .newBuilder()

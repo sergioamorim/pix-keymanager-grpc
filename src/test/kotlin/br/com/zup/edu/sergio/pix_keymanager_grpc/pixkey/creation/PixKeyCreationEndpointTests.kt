@@ -19,7 +19,6 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import javax.inject.Inject
@@ -60,8 +59,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should save the pix key to the database and return it's id")
-  fun shouldSaveThePixKeyToTheDatabaseAndReturnItSId() {
+  fun `should save a valid random pix key to the database and return it's id`() {
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
@@ -75,8 +73,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when the type is random and a key is sent")
-  fun shouldReturnIllegalArgumentWhenTheTypeIsRandomAndAKeyIsSent() {
+  fun `should return illegal argument when the type is random and a key is sent`() {
     val key = "something"
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -99,8 +96,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when a CPF key has an invalid CPF format")
-  fun shouldReturnIllegalArgumentWhenACpfKeyHasAnInvalidCpfFormat() {
+  fun `should return illegal argument when a CPF key has an invalid CPF format`() {
     val key = "+5585988714077"
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -123,8 +119,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when a phone number key has an invalid phone number format")
-  fun shouldReturnIllegalArgumentWhenAPhoneNumberKeyHasAnInvalidPhoneNumberFormat() {
+  fun `should return illegal argument when a phone number key has an invalid phone number format`() {
     val key = "12345678901"
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -147,8 +142,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when a email key has an invalid email format")
-  fun shouldReturnIllegalArgumentWhenAEmailKeyHasAnInvalidEmailFormat() {
+  fun `should return illegal argument when an email key has an invalid email format`() {
     val key = "12345678901"
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -171,8 +165,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return already exists when the key is already in the database")
-  fun shouldReturnAlreadyExistsWhenTheKeyIsAlreadyInTheDatabase() {
+  fun `should return already exists when the key is already in the database`() {
     val key = "12345678901"
     this.pixKeyRepository.save(
       PixKey(
@@ -201,8 +194,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should save a valid CPF key and return it's id")
-  fun shouldSaveAValidCpfKeyAndReturnItSId() {
+  fun `should save a valid CPF key and return it's id`() {
     val key = "12345678901"
 
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
@@ -220,8 +212,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should save a valid email key and return it's id")
-  fun shouldSaveAValidEmailKeyAndReturnItSId() {
+  fun `should save a valid email key and return it's id`() {
     val key = "sergio@zup.com"
 
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
@@ -239,8 +230,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should save a valid phone number key and return it's id")
-  fun shouldSaveAValidPhoneNumberKeyAndReturnItSId() {
+  fun `should save a valid phone number key and return it's id`() {
     val key = "+5585988714077"
 
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
@@ -258,8 +248,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when a CPF key request is sent without a key")
-  fun shouldReturnIllegalArgumentWhenACpfKeyRequestIsSentWithoutAKey() {
+  fun `should return illegal argument when a CPF key request is sent without a key`() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
@@ -277,8 +266,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return not found when the account existence can't be confirmed")
-  fun shouldReturnNotFoundWhenTheAccountExistenceCanTBeConfirmed() {
+  fun `should return not found when the account existence can't be confirmed`() {
     val key = "12345678901"
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -299,8 +287,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return illegal argument when the key has more than 77 characters")
-  fun shouldReturnIllegalArgumentWhenTheKeyHasMoreThan77Characters() {
+  fun `should return illegal argument when the key has more than 77 characters`() {
     val key = "really.long.email@example.com".padStart(length = 78, padChar = 'a')
 
     assertThrows(StatusRuntimeException::class.java) {
@@ -323,8 +310,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should save a key with exactly 77 characters and return it's id")
-  fun shouldSaveAKeyWithExactly77CharactersAndReturnItSId() {
+  fun `should save a key with exactly 77 characters and return it's id`() {
     val key = "not.too.long.email@example.com".padStart(length = 77, padChar = 'a')
 
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
@@ -342,8 +328,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return unavailable when the erp system returns a unknown status")
-  fun shouldReturnUnavailableWhenTheErpSystemReturnsAUnknownStatus() {
+  fun `should return unavailable when the erp system returns an unknown status`() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
@@ -359,8 +344,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return invalid argument when the account type is not sent")
-  fun shouldReturnInvalidArgumentWhenTheAccountTypeIsNotSent() {
+  fun `should return invalid argument when the account type is not sent`() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
@@ -378,8 +362,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @DisplayName("Should return invalid argument when the type is not sent")
-  fun shouldReturnInvalid() {
+  fun `should return invalid argument when the type is not sent`() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
