@@ -81,7 +81,7 @@ class PixKeyCreator @Inject constructor(
             pixKeyCreationRequest = pixKeyCreationRequest,
             dadosDaContaResponse = dadosDaContaResponse
           )
-        ).blockingGet()
+        )
       )
     } catch (httpClientResponseException: HttpClientResponseException) {
       Either.Left(httpClientResponseException.status)

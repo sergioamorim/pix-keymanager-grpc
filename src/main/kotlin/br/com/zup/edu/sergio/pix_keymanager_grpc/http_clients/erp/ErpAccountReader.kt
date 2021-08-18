@@ -21,7 +21,7 @@ class ErpAccountReader @Inject constructor(private val erpClient: ErpClient) {
         this.erpClient.readAccount(
           clientId = pixKeyCreationRequest.clientId,
           accountType = pixKeyCreationRequest.erpAccountType()
-        ).blockingGet()
+        )
       )
     } catch (httpClientResponseException: HttpClientResponseException) {
       Either.Left(
