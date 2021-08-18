@@ -1,6 +1,5 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.Either
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.BcbClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.CreatePixKeyRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.CreatePixKeyResponse
@@ -12,8 +11,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,85 +25,82 @@ class PixKeyCreator @Inject constructor(
 
   fun createPixKey(
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Either<StatusRuntimeException, PixKeyCreationResponse> =
-    when (
-      val accountResult: Either<StatusRuntimeException, DadosDaContaResponse> =
-        this.erpAccountReader.readAccount(pixKeyCreationRequest)
-    ) {
-      is Either.Left<StatusRuntimeException> -> Either.Left(accountResult.left)
-
-      is Either.Right<DadosDaContaResponse> -> {
+  ): Single<PixKeyCreationResponse> {
+    return this.erpAccountReader
+      .readAccount(pixKeyCreationRequest = pixKeyCreationRequest)
+      .flatMap { dadosDaContaResponse: DadosDaContaResponse ->
         this.createPixKeyWithDadosDaContaResponse(
-          pixKeyCreationRequest, dadosDaContaResponse = accountResult.right
+          pixKeyCreationRequest = pixKeyCreationRequest,
+          dadosDaContaResponse = dadosDaContaResponse
         )
       }
-    }
+  }
 
   private fun createPixKeyWithDadosDaContaResponse(
     pixKeyCreationRequest: PixKeyCreationRequest,
     dadosDaContaResponse: DadosDaContaResponse
-  ): Either<StatusRuntimeException, PixKeyCreationResponse> =
-    when (
-      val creationResult: Either<HttpStatus, CreatePixKeyResponse> =
-        this.creationResult(pixKeyCreationRequest, dadosDaContaResponse)
-    ) {
-      is Either.Left -> Either.Left(grpcErrorFromHttpStatus(creationResult.left))
-
-      is Either.Right -> Either.Right(
+  ): Single<PixKeyCreationResponse> =
+    this
+      .creationResult(pixKeyCreationRequest, dadosDaContaResponse)
+      .flatMap { createPixKeyResponse: CreatePixKeyResponse ->
         this.pixCreationResponseOfSavedPixKey(
-          creationResult.right, pixKeyCreationRequest
+          createPixKeyResponse = createPixKeyResponse,
+          pixKeyCreationRequest = pixKeyCreationRequest
         )
-      )
-    }
+      }
 
   private fun pixCreationResponseOfSavedPixKey(
     createPixKeyResponse: CreatePixKeyResponse,
     pixKeyCreationRequest: PixKeyCreationRequest
-  ) =
-    PixKeyCreationResponse
-      .newBuilder()
-      .setPixId(
-        this.pixKeyRepository.save(
-          createPixKeyResponse.asPixKey(pixKeyCreationRequest.clientId)
-        ).id
-      )
-      .build()
+  ): Single<PixKeyCreationResponse> {
+    return Single.just(
+      PixKeyCreationResponse
+        .newBuilder()
+        .setPixId(
+          this.pixKeyRepository.save(
+            createPixKeyResponse.asPixKey(pixKeyCreationRequest.clientId)
+          ).id
+        )
+        .build()
+    )
+  }
 
   private fun creationResult(
     pixKeyCreationRequest: PixKeyCreationRequest,
     dadosDaContaResponse: DadosDaContaResponse
-  ): Either<HttpStatus, CreatePixKeyResponse> =
-    try {
-      Either.Right(
-        this.bcbClient.createPixKey(
-          createPixKeyRequest = CreatePixKeyRequest(
-            pixKeyCreationRequest = pixKeyCreationRequest,
-            dadosDaContaResponse = dadosDaContaResponse
-          )
+  ): Single<CreatePixKeyResponse> =
+    this.bcbClient
+      .createPixKey(
+        createPixKeyRequest = CreatePixKeyRequest(
+          pixKeyCreationRequest = pixKeyCreationRequest,
+          dadosDaContaResponse = dadosDaContaResponse
         )
       )
-    } catch (httpClientResponseException: HttpClientResponseException) {
-      Either.Left(httpClientResponseException.status)
-    }
+      .doOnError { error: Throwable ->
+        if (error is HttpClientResponseException) {
+          Single.error<CreatePixKeyResponse>(translatedError(error = error))
+        }
+      }
+
 }
 
-private fun grpcErrorFromHttpStatus(
-  httpStatus: HttpStatus
+private fun translatedError(
+  error: HttpClientResponseException
 ): StatusRuntimeException {
-  if (httpStatus.isUnprocessableEntity()) {
+  if (error.isUnprocessableEntity()) {
     return Status.ALREADY_EXISTS
       .withDescription("pix key must be unique")
       .augmentDescription(
-        "the pix key already exists within the Central Bank of Brazil system"
+        "the pix key already exists within the bcb system"
       )
       .asRuntimeException()
   }
 
   return Status.UNAVAILABLE
-    .withDescription("pix key creation service unavailable")
+    .withDescription("bcb pix key creation service unavailable")
     .augmentDescription(
-      "can't create the pix key because the Central Bank of Brazil system " +
-      "is returning an unknown response"
+      "can't create the pix key because the bcb system is " +
+      "returning an unknown response"
     )
     .asRuntimeException()
 }

@@ -7,7 +7,6 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
 import javax.inject.Inject
@@ -19,41 +18,35 @@ class PixKeyDeleter @Inject constructor(
 
   fun deletePixKey(pixKey: PixKey): Completable =
     this.deleteOnBcb(pixKey)
-      .doOnComplete {
-        this.pixKeyRepository.delete(pixKey)
-        Completable.complete()
-      }
-      .doOnError { error: Throwable -> Completable.error(error) }
+      .doOnComplete { this.pixKeyRepository.delete(pixKey) }
 
   private fun deleteOnBcb(pixKey: PixKey): Completable =
-    bcbClient.deletePixKey(
-      key = pixKey.key,
-      deletePixKeyRequest = DeletePixKeyRequest(
-        key = pixKey.key, participant = pixKey.participant
+    this.bcbClient
+      .deletePixKey(
+        key = pixKey.key,
+        deletePixKeyRequest = DeletePixKeyRequest(
+          key = pixKey.key, participant = pixKey.participant
+        )
       )
-    )
-      .doOnComplete { Completable.complete() }
       .doOnError { error: Throwable ->
-        with((error as HttpClientResponseException)) {
-          grpcErrorFromHttpStatus(httpStatus = this.status)
-            ?.let { statusRunTimeException: StatusRuntimeException ->
-              Completable.error(statusRunTimeException)
-            }
-
-          Completable.complete()
+        if (error is HttpClientResponseException) {
+          translatedError(error = error)?.let { translatedError: Throwable ->
+            Completable.error(translatedError)
+          }
         }
+        Completable.complete()
       }
 }
 
-private fun grpcErrorFromHttpStatus(
-  httpStatus: HttpStatus
+private fun translatedError(
+  error: HttpClientResponseException
 ): StatusRuntimeException? {
-  if (httpStatus.isDifferentFromNotFound()) {
+  if (error.isDifferentFromNotFound()) {
     return Status.UNAVAILABLE
-      .withDescription("pix key deletion service unavailable")
+      .withDescription("bcb pix key deletion service unavailable")
       .augmentDescription(
-        "can't delete the pix key because the " +
-        "Central Bank of Brazil system is returning an unknown response"
+        "can't delete the pix key because the bcb system is " +
+        "returning an unknown response"
       )
       .asRuntimeException()
   }

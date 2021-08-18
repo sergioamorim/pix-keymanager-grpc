@@ -1,13 +1,11 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.Either
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
-import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import io.reactivex.Scheduler
 import javax.inject.Inject
@@ -51,16 +49,15 @@ class PixKeyCreationEndpoint @Inject constructor(
     pixKeyCreationRequest: PixKeyCreationRequest,
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
-    this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
-      .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
-        when (result) {
-          is Either.Right<PixKeyCreationResponse> ->
-            responseObserver.onNext(result.right)
-
-          is Either.Left<StatusRuntimeException> ->
-            responseObserver.onError(result.left)
-        }
-      }
-    responseObserver.onCompleted()
+    this.pixKeyCreator
+      .createPixKey(pixKeyCreationRequest)
+      .observeOn(this.scheduler)
+      .subscribe(
+        { pixKeyCreationResponse: PixKeyCreationResponse ->
+          responseObserver.onNext(pixKeyCreationResponse)
+          responseObserver.onCompleted()
+        },
+        responseObserver::onError
+      )
   }
 }
