@@ -8,4 +8,6 @@ interface PixKeyRepository : JpaRepository<PixKey, String> {
   fun existsByKey(key: String): Boolean
 
   fun existsByIdAndClientId(id: String, clientId: String): Boolean
+
+  fun getById(pixId: String): PixKey
 }

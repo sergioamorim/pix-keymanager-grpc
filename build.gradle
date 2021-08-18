@@ -41,6 +41,7 @@ dependencies {
   implementation('io.micronaut.sql:micronaut-jdbc-hikari:3.4.0')
 
   implementation("io.micronaut:micronaut-http-client:2.1.2")
+  implementation('io.micronaut.xml:micronaut-jackson-xml:2.3.2')
 
   testImplementation("com.h2database:h2:1.4.200")
   testImplementation("org.mockito:mockito-junit-jupiter:3.11.2")

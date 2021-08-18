@@ -1,12 +1,12 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.Either
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
-import br.com.zup.edu.sergio.pix_keymanager_grpc.rest_clients.ErpClient
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import javax.inject.Inject
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class PixKeyCreationEndpoint @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val erpClient: ErpClient
+  private val pixKeyCreator: PixKeyCreator
 ) : PixKeyCreationServiceGrpc.PixKeyCreationServiceImplBase() {
 
   private val requestValidationChain: RequestMiddleware<PixKeyCreationRequest> =
@@ -23,7 +23,7 @@ class PixKeyCreationEndpoint @Inject constructor(
 
   init {
     this.requestValidationChain
-      .linkWith(ClientIdMiddleware(this.erpClient))
+      .linkWith(ClientIdMiddleware())
       .linkWith(EmailKeyMiddleware())
       .linkWith(PhoneNumberKeyMiddleware())
       .linkWith(CpfKeyMiddleware())
@@ -44,12 +44,17 @@ class PixKeyCreationEndpoint @Inject constructor(
         return
       }
 
-    responseObserver.onNext(
-      PixKeyCreationResponse
-        .newBuilder()
-        .setPixId(this.pixKeyRepository.save(pixKeyCreationRequest.asPixKey()).id)
-        .build()
-    )
+    this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
+      .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
+        when (result) {
+          is Either.Right<PixKeyCreationResponse> ->
+            responseObserver.onNext(result.right)
+
+          is Either.Left<StatusRuntimeException> ->
+            responseObserver.onError(result.left)
+        }
+      }
+
     responseObserver.onCompleted()
   }
 }

@@ -2,8 +2,8 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdIsUuidMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdMatchesMiddleware
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdNotBlankMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.PixIdExistsMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.PixIdNotBlankMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
@@ -16,11 +16,12 @@ import javax.inject.Singleton
 
 @Singleton
 class PixKeyDeletionEndpoint @Inject constructor(
-  private val pixKeyRepository: PixKeyRepository
+  private val pixKeyRepository: PixKeyRepository,
+  private val pixKeyDeleter: PixKeyDeleter
 ) : PixKeyDeletionServiceGrpc.PixKeyDeletionServiceImplBase() {
 
   private val requestValidationChain: RequestMiddleware<PixKeyDeletionRequest> =
-    ClientIdNotBlankMiddleware()
+    ClientIdIsUuidMiddleware()
 
   init {
     this.requestValidationChain
@@ -40,7 +41,13 @@ class PixKeyDeletionEndpoint @Inject constructor(
         return
       }
 
-    this.pixKeyRepository.deleteById(pixKeyDeletionRequest.pixId)
+    this.pixKeyDeleter.deletePixKey(
+      this.pixKeyRepository.getById(pixKeyDeletionRequest.pixId)
+    )?.let { error: StatusRuntimeException ->
+      responseObserver.onError(error)
+      return
+    }
+
     responseObserver.onNext(Empty.getDefaultInstance())
     responseObserver.onCompleted()
   }

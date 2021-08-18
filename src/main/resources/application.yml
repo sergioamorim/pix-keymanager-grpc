@@ -19,3 +19,5 @@ jpa:
 http-clients:
   erp:
     server_url: ${ERP_SERVER_URL}
+  bcb:
+    server_url: ${BCB_SERVER_URL}

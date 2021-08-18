@@ -1,16 +1,19 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.BcbClient
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito.mock
 import java.util.*
 import javax.inject.Inject
 
@@ -25,6 +28,10 @@ class PixKeyDeletionEndpointTests @Inject constructor(
     this.pixKeyRepository.deleteAll()
   }
 
+  @get:MockBean(BcbClient::class)
+  val bcbClientMock: BcbClient
+    get() = mock(BcbClient::class.java)
+
   @Test
   fun `should delete an existing pix key when the client id matches`() {
     val clientId = UUID.randomUUID().toString()
@@ -33,7 +40,8 @@ class PixKeyDeletionEndpointTests @Inject constructor(
         type = PixKey.KeyType.CPF,
         key = "12345678901",
         clientId = clientId,
-        accountType = PixKey.AccountType.CHECKING
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
       )
     ).id ?: "should fail"
 
@@ -70,7 +78,8 @@ class PixKeyDeletionEndpointTests @Inject constructor(
         type = PixKey.KeyType.CPF,
         key = "12345678901",
         clientId = UUID.randomUUID().toString(),
-        accountType = PixKey.AccountType.CHECKING
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
       )
     ).id ?: "should fail"
 
@@ -110,6 +119,21 @@ class PixKeyDeletionEndpointTests @Inject constructor(
         PixKeyDeletionRequest
           .newBuilder()
           .setPixId(UUID.randomUUID().toString())
+          .build()
+      )
+    }.also { statusRuntimeException ->
+      assertEquals(Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code)
+    }
+  }
+
+  @Test
+  fun `should return invalid argument when the client id is not an UUID`() {
+    assertThrows<StatusRuntimeException> {
+      this.pixKeyDeletionBlockingStub.deletePixKey(
+        PixKeyDeletionRequest
+          .newBuilder()
+          .setPixId(UUID.randomUUID().toString())
+          .setClientId("not")
           .build()
       )
     }.also { statusRuntimeException ->

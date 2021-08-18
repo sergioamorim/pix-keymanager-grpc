@@ -1,8 +1,9 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.KeyType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.ErpAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.isNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
-import java.util.*
 
 fun PixKeyCreationRequest.isCpfKey(): Boolean =
   this.type.equals(PixKeyCreationRequest.KeyType.CPF)
@@ -28,55 +29,50 @@ fun PixKeyCreationRequest.hasNotAValidEmailKey(): Boolean =
   !this.key.matches(Regex(pattern = ".+@.+\\..+"))
 
 fun PixKeyCreationRequest.hasInvalidAccountType(): Boolean =
-  null == this.accountType.toModel()
+  this.accountType !in listOf(
+    PixKeyCreationRequest.AccountType.CHECKING,
+    PixKeyCreationRequest.AccountType.SAVINGS
+  )
 
 fun PixKeyCreationRequest.hasInvalidType(): Boolean =
-  null == this.type.toModel()
-
-fun PixKeyCreationRequest.asPixKey(): PixKey {
-  assert(null != this.type.toModel()) {
-    """
-      PixKeyCreationRequest.asPixKey should never be called with an invalid key 
-      type (type). A PixKey object can't be created without a valid type."
-    """.trimIndent()
-  }
-  assert(null != this.accountType.toModel()) {
-    """
-      PixKeyCreationRequest.asPixKey should never be called with an invalid 
-      account type (accountType). A PixKey object can't be created without a
-      valid accountType."
-    """.trimIndent()
-  }
-  return PixKey(
-    type = this.type.toModel()!!,
-    key = this.keyOrNewRandomKey(),
-    clientId = this.clientId,
-    accountType = this.accountType.toModel()!!
+  this.type !in listOf(
+    PixKeyCreationRequest.KeyType.CPF,
+    PixKeyCreationRequest.KeyType.EMAIL,
+    PixKeyCreationRequest.KeyType.PHONE_NUMBER,
+    PixKeyCreationRequest.KeyType.RANDOM
   )
-}
 
-fun PixKeyCreationRequest.keyOrNewRandomKey(): String =
-  if (PixKeyCreationRequest.KeyType.RANDOM == this.type) {
-    UUID.randomUUID().toString()
-  } else {
-    this.key
+fun PixKeyCreationRequest.isClientIdNotAnUuid(): Boolean =
+  this.clientId.isNotAnUuid()
+
+fun PixKeyCreationRequest.bcbKeyType(): KeyType =
+  when (this.type) {
+    PixKeyCreationRequest.KeyType.CPF -> KeyType.CPF
+    PixKeyCreationRequest.KeyType.PHONE_NUMBER -> KeyType.PHONE
+    PixKeyCreationRequest.KeyType.EMAIL -> KeyType.EMAIL
+    PixKeyCreationRequest.KeyType.RANDOM -> KeyType.RANDOM
+    else -> throw AssertionError(
+      """
+        PixKeyCreationRequest.bcbKeyType should never be called with an invalid key 
+        type (type). Can't convert PixKeyCreationRequest.KeyType to bcb.KeyType without
+        a valid type.
+      """.trimIndent()
+    )
   }
 
 fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
   this.key.length > maxLength
 
-fun PixKeyCreationRequest.KeyType.toModel(): PixKey.KeyType? =
-  when (this) {
-    PixKeyCreationRequest.KeyType.CPF -> PixKey.KeyType.CPF
-    PixKeyCreationRequest.KeyType.EMAIL -> PixKey.KeyType.EMAIL
-    PixKeyCreationRequest.KeyType.PHONE_NUMBER -> PixKey.KeyType.PHONE_NUMBER
-    PixKeyCreationRequest.KeyType.RANDOM -> PixKey.KeyType.RANDOM
-    else -> null
-  }
-
-fun PixKeyCreationRequest.AccountType.toModel(): PixKey.AccountType? =
-  when (this) {
-    PixKeyCreationRequest.AccountType.CHECKING -> PixKey.AccountType.CHECKING
-    PixKeyCreationRequest.AccountType.SAVINGS -> PixKey.AccountType.SAVINGS
-    else -> null
+fun PixKeyCreationRequest.erpAccountType(): ErpAccountType =
+  when (this.accountType) {
+    PixKeyCreationRequest.AccountType.CHECKING -> ErpAccountType.CONTA_CORRENTE
+    PixKeyCreationRequest.AccountType.SAVINGS -> ErpAccountType.CONTA_POUPANCA
+    else -> throw AssertionError(
+      """
+        PixKeyCreationRequest.erpAccountType should never be called with an 
+        invalid account type (accountType). Can't convert 
+        PixKeyCreationRequest.AccountType to bcb.AccountType without a valid
+        account type.
+      """.trimIndent()
+    )
   }
