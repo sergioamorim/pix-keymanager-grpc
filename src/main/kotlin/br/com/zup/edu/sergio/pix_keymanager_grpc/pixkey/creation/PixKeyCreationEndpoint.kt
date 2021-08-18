@@ -37,24 +37,23 @@ class PixKeyCreationEndpoint @Inject constructor(
     pixKeyCreationRequest: PixKeyCreationRequest,
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
-
     this.requestValidationChain.check(pixKeyCreationRequest)
-      ?.let { error: StatusRuntimeException ->
+      .doOnComplete {
+        this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
+          .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
+            when (result) {
+              is Either.Right<PixKeyCreationResponse> ->
+                responseObserver.onNext(result.right)
+
+              is Either.Left<StatusRuntimeException> ->
+                responseObserver.onError(result.left)
+            }
+          }
+        responseObserver.onCompleted()
+      }
+      .doOnError { error: Throwable ->
         responseObserver.onError(error)
-        return
       }
-
-    this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
-      .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
-        when (result) {
-          is Either.Right<PixKeyCreationResponse> ->
-            responseObserver.onNext(result.right)
-
-          is Either.Left<StatusRuntimeException> ->
-            responseObserver.onError(result.left)
-        }
-      }
-
-    responseObserver.onCompleted()
+      .subscribe()
   }
 }

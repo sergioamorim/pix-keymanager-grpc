@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdIsUuidMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdMatchesMiddleware
@@ -9,8 +10,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validat
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import com.google.protobuf.Empty
-import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,19 +37,28 @@ class PixKeyDeletionEndpoint @Inject constructor(
   ) {
 
     this.requestValidationChain.check(pixKeyDeletionRequest)
-      ?.let { error: StatusRuntimeException ->
-        responseObserver.onError(error)
-        return
+      .doOnComplete {
+        this.proceedPixKeyDeletion(
+          pixKey = this.pixKeyRepository.getById(
+            pixId = pixKeyDeletionRequest.pixId
+          ),
+          responseObserver
+        )
       }
+      .doOnError { error: Throwable -> responseObserver.onError(error) }
+      .subscribe()
+  }
 
-    this.pixKeyDeleter.deletePixKey(
-      this.pixKeyRepository.getById(pixKeyDeletionRequest.pixId)
-    )?.let { error: StatusRuntimeException ->
-      responseObserver.onError(error)
-      return
-    }
-
-    responseObserver.onNext(Empty.getDefaultInstance())
-    responseObserver.onCompleted()
+  private fun proceedPixKeyDeletion(
+    pixKey: PixKey, responseObserver: StreamObserver<Empty>
+  ) {
+    this.pixKeyDeleter.deletePixKey(pixKey = pixKey)
+      .doOnComplete {
+        responseObserver.onNext(Empty.getDefaultInstance())
+        responseObserver.onCompleted()
+      }
+      .doOnError { error: Throwable -> responseObserver.onError(error) }
+      .observeOn(Schedulers.io())
+      .subscribe()
   }
 }

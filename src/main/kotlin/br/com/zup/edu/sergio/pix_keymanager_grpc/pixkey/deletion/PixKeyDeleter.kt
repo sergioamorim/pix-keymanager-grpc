@@ -9,6 +9,7 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.reactivex.Completable
 import javax.inject.Inject
 
 class PixKeyDeleter @Inject constructor(
@@ -16,17 +17,16 @@ class PixKeyDeleter @Inject constructor(
   private val pixKeyRepository: PixKeyRepository
 ) {
 
-  fun deletePixKey(pixKey: PixKey): StatusRuntimeException? {
-    this.deleteOnBcb(pixKey)
-      ?.let { statusRuntimeException: StatusRuntimeException ->
-        return statusRuntimeException
+  fun deletePixKey(pixKey: PixKey): Completable {
+    return this.deleteOnBcb(pixKey)
+      .doOnComplete {
+        this.pixKeyRepository.delete(pixKey)
+        Completable.complete()
       }
-
-    this.pixKeyRepository.delete(pixKey)
-    return null
+      .doOnError { error: Throwable -> Completable.error(error) }
   }
 
-  private fun deleteOnBcb(pixKey: PixKey): StatusRuntimeException? =
+  private fun deleteOnBcb(pixKey: PixKey): Completable =
     try {
       bcbClient.deletePixKey(
         key = pixKey.key,
@@ -34,9 +34,9 @@ class PixKeyDeleter @Inject constructor(
           key = pixKey.key, participant = pixKey.participant
         )
       )
-      null
+      Completable.complete()
     } catch (httpClientResponseException: HttpClientResponseException) {
-      grpcErrorFromHttpStatus(httpClientResponseException.status)
+      Completable.error(grpcErrorFromHttpStatus(httpClientResponseException.status))
     }
 
 }
