@@ -9,13 +9,15 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
+import io.reactivex.Scheduler
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class PixKeyCreationEndpoint @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val pixKeyCreator: PixKeyCreator
+  private val pixKeyCreator: PixKeyCreator,
+  private val scheduler: Scheduler
 ) : PixKeyCreationServiceGrpc.PixKeyCreationServiceImplBase() {
 
   private val requestValidationChain: RequestMiddleware<PixKeyCreationRequest> =
@@ -54,6 +56,7 @@ class PixKeyCreationEndpoint @Inject constructor(
       .doOnError { error: Throwable ->
         responseObserver.onError(error)
       }
+      .observeOn(this.scheduler)
       .subscribe()
   }
 }

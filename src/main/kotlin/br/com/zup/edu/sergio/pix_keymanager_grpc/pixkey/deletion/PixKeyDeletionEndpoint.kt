@@ -11,14 +11,15 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class PixKeyDeletionEndpoint @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val pixKeyDeleter: PixKeyDeleter
+  private val pixKeyDeleter: PixKeyDeleter,
+  private val scheduler: Scheduler
 ) : PixKeyDeletionServiceGrpc.PixKeyDeletionServiceImplBase() {
 
   private val requestValidationChain: RequestMiddleware<PixKeyDeletionRequest> =
@@ -42,10 +43,11 @@ class PixKeyDeletionEndpoint @Inject constructor(
           pixKey = this.pixKeyRepository.getById(
             pixId = pixKeyDeletionRequest.pixId
           ),
-          responseObserver
+          responseObserver = responseObserver
         )
       }
       .doOnError { error: Throwable -> responseObserver.onError(error) }
+      .observeOn(this.scheduler)
       .subscribe()
   }
 
@@ -58,7 +60,7 @@ class PixKeyDeletionEndpoint @Inject constructor(
         responseObserver.onCompleted()
       }
       .doOnError { error: Throwable -> responseObserver.onError(error) }
-      .observeOn(Schedulers.io())
+      .observeOn(this.scheduler)
       .subscribe()
   }
 }
