@@ -40,23 +40,27 @@ class PixKeyCreationEndpoint @Inject constructor(
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
     this.requestValidationChain.check(pixKeyCreationRequest)
-      .doOnComplete {
-        this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
-          .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
-            when (result) {
-              is Either.Right<PixKeyCreationResponse> ->
-                responseObserver.onNext(result.right)
-
-              is Either.Left<StatusRuntimeException> ->
-                responseObserver.onError(result.left)
-            }
-          }
-        responseObserver.onCompleted()
-      }
-      .doOnError { error: Throwable ->
-        responseObserver.onError(error)
-      }
       .observeOn(this.scheduler)
-      .subscribe()
+      .subscribe(
+        { this.proceedPixKeyCreation(pixKeyCreationRequest, responseObserver) },
+        responseObserver::onError
+      )
+  }
+
+  private fun proceedPixKeyCreation(
+    pixKeyCreationRequest: PixKeyCreationRequest,
+    responseObserver: StreamObserver<PixKeyCreationResponse>
+  ) {
+    this.pixKeyCreator.createPixKey(pixKeyCreationRequest)
+      .let { result: Either<StatusRuntimeException, PixKeyCreationResponse> ->
+        when (result) {
+          is Either.Right<PixKeyCreationResponse> ->
+            responseObserver.onNext(result.right)
+
+          is Either.Left<StatusRuntimeException> ->
+            responseObserver.onError(result.left)
+        }
+      }
+    responseObserver.onCompleted()
   }
 }

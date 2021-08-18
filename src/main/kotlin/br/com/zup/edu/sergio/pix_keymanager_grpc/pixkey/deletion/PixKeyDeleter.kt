@@ -17,28 +17,32 @@ class PixKeyDeleter @Inject constructor(
   private val pixKeyRepository: PixKeyRepository
 ) {
 
-  fun deletePixKey(pixKey: PixKey): Completable {
-    return this.deleteOnBcb(pixKey)
+  fun deletePixKey(pixKey: PixKey): Completable =
+    this.deleteOnBcb(pixKey)
       .doOnComplete {
         this.pixKeyRepository.delete(pixKey)
         Completable.complete()
       }
       .doOnError { error: Throwable -> Completable.error(error) }
-  }
 
   private fun deleteOnBcb(pixKey: PixKey): Completable =
-    try {
-      bcbClient.deletePixKey(
-        key = pixKey.key,
-        deletePixKeyRequest = DeletePixKeyRequest(
-          key = pixKey.key, participant = pixKey.participant
-        )
+    bcbClient.deletePixKey(
+      key = pixKey.key,
+      deletePixKeyRequest = DeletePixKeyRequest(
+        key = pixKey.key, participant = pixKey.participant
       )
-      Completable.complete()
-    } catch (httpClientResponseException: HttpClientResponseException) {
-      Completable.error(grpcErrorFromHttpStatus(httpClientResponseException.status))
-    }
+    )
+      .doOnComplete { Completable.complete() }
+      .doOnError { error: Throwable ->
+        with((error as HttpClientResponseException)) {
+          grpcErrorFromHttpStatus(httpStatus = this.status)
+            ?.let { statusRunTimeException: StatusRuntimeException ->
+              Completable.error(statusRunTimeException)
+            }
 
+          Completable.complete()
+        }
+      }
 }
 
 private fun grpcErrorFromHttpStatus(

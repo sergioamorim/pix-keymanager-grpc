@@ -38,29 +38,31 @@ class PixKeyDeletionEndpoint @Inject constructor(
   ) {
 
     this.requestValidationChain.check(pixKeyDeletionRequest)
-      .doOnComplete {
-        this.proceedPixKeyDeletion(
-          pixKey = this.pixKeyRepository.getById(
-            pixId = pixKeyDeletionRequest.pixId
-          ),
-          responseObserver = responseObserver
-        )
-      }
-      .doOnError { error: Throwable -> responseObserver.onError(error) }
       .observeOn(this.scheduler)
-      .subscribe()
+      .subscribe(
+        {
+          this.proceedPixKeyDeletion(
+            pixKey = this.pixKeyRepository.getById(
+              pixId = pixKeyDeletionRequest.pixId
+            ),
+            responseObserver = responseObserver
+          )
+        },
+        responseObserver::onError
+      )
   }
 
   private fun proceedPixKeyDeletion(
     pixKey: PixKey, responseObserver: StreamObserver<Empty>
   ) {
     this.pixKeyDeleter.deletePixKey(pixKey = pixKey)
-      .doOnComplete {
-        responseObserver.onNext(Empty.getDefaultInstance())
-        responseObserver.onCompleted()
-      }
-      .doOnError { error: Throwable -> responseObserver.onError(error) }
       .observeOn(this.scheduler)
-      .subscribe()
+      .subscribe(
+        {
+          responseObserver.onNext(Empty.getDefaultInstance())
+          responseObserver.onCompleted()
+        },
+        responseObserver::onError
+      )
   }
 }
