@@ -41,7 +41,6 @@ dependencies {
   runtimeOnly('com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4')
 
   testImplementation("com.h2database:h2:1.4.200")
-  testImplementation("org.mockito:mockito-junit-jupiter:3.11.2")
 }
 
 

@@ -1,7 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.BcbClient
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.ErpClient
+import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
@@ -12,20 +11,18 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
 import java.util.*
 import javax.inject.Inject
 
 @MicronautTest(transactional = false)
 class PixKeyCreationEndpointTests @Inject constructor(
   private val grpcClient: PixKeyCreationServiceGrpc.PixKeyCreationServiceBlockingStub,
-  private val pixKeyRepository: PixKeyRepository
+  private val pixKeyRepository: PixKeyRepository,
+  private val mockBeanFactory: MockBeanFactory
 ) {
 
   @BeforeEach
@@ -33,16 +30,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
     this.pixKeyRepository.deleteAll()
   }
 
-  @get:MockBean(ErpClient::class)
-  private val erpClientMock: ErpClient
-    get() = mock(ErpClient::class.java)
-
-  @get:MockBean(BcbClient::class)
-  private val bcbClientMock: BcbClient
-    get() = mock(BcbClient::class.java)
-
   @Test
-  @Disabled
   fun `should save a valid random pix key to the database and return it's id`() {
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
@@ -179,7 +167,6 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should save a valid CPF key and return it's id`() {
     val key = "12345678901"
 
@@ -198,7 +185,6 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should save a valid email key and return it's id`() {
     val key = "sergio@zup.com"
 
@@ -217,7 +203,6 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should save a valid phone number key and return it's id`() {
     val key = "+5585988714077"
 
@@ -254,7 +239,6 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should return not found when the account existence can't be confirmed`() {
     val key = "12345678901"
 
@@ -263,7 +247,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setAccountType(CHECKING)
-          .setClientId(UUID.randomUUID().toString())
+          .setClientId(this.mockBeanFactory.erpReadReturnsNotFoundClientId)
           .setType(CPF)
           .setKey(key)
           .build()
@@ -299,7 +283,6 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should save a key with exactly 77 characters and return it's id`() {
     val key = "not.too.long.email@example.com".padStart(length = 77, padChar = 'a')
 
@@ -318,14 +301,13 @@ class PixKeyCreationEndpointTests @Inject constructor(
   }
 
   @Test
-  @Disabled
   fun `should return unavailable when the erp system returns an unknown status`() {
     assertThrows(StatusRuntimeException::class.java) {
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
           .setAccountType(SAVINGS)
-          .setClientId(UUID.randomUUID().toString())
+          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownStatusClientId)
           .setType(RANDOM)
           .build()
       )

@@ -1,26 +1,25 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.BcbClient
+import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.mock
 import java.util.*
 import javax.inject.Inject
 
 @MicronautTest(transactional = false)
 class PixKeyDeletionEndpointTests @Inject constructor(
   private val pixKeyDeletionBlockingStub: PixKeyDeletionServiceGrpc.PixKeyDeletionServiceBlockingStub,
-  private val pixKeyRepository: PixKeyRepository
+  private val pixKeyRepository: PixKeyRepository,
+  private val mockBeanFactory: MockBeanFactory
 ) {
 
   @BeforeEach
@@ -28,13 +27,9 @@ class PixKeyDeletionEndpointTests @Inject constructor(
     this.pixKeyRepository.deleteAll()
   }
 
-  @get:MockBean(BcbClient::class)
-  val bcbClientMock: BcbClient
-    get() = mock(BcbClient::class.java)
-
   @Test
   fun `should delete an existing pix key when the client id matches`() {
-    val clientId = UUID.randomUUID().toString()
+    val clientId: String = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
         type = PixKey.KeyType.CPF,
@@ -139,5 +134,58 @@ class PixKeyDeletionEndpointTests @Inject constructor(
     }.also { statusRuntimeException ->
       assertEquals(Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code)
     }
+  }
+
+  @Test
+  fun `should delete the pix key id when it is not found within the bcb system`() {
+    val clientId: String = UUID.randomUUID().toString()
+
+    val pixId: String = this.pixKeyRepository.save(
+      PixKey(
+        type = PixKey.KeyType.CPF,
+        key = this.mockBeanFactory.bcbDeleteReturnsNotFoundPixKey,
+        clientId = clientId,
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
+      )
+    ).id ?: "should fail"
+
+    this.pixKeyDeletionBlockingStub.deletePixKey(
+      PixKeyDeletionRequest
+        .newBuilder()
+        .setPixId(pixId)
+        .setClientId(clientId)
+        .build()
+    )
+
+    assertFalse(this.pixKeyRepository.existsById(pixId))
+  }
+
+  @Test
+  fun `should return unavailable and not delete the pix key when the bcb server returns an unknown response`() {
+    val clientId: String = UUID.randomUUID().toString()
+    val pixId: String = this.pixKeyRepository.save(
+      PixKey(
+        type = PixKey.KeyType.CPF,
+        key = this.mockBeanFactory.bcbDeleteReturnsUnknownResponsePixKey,
+        clientId = clientId,
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
+      )
+    ).id ?: "should fail"
+
+    assertThrows(StatusRuntimeException::class.java) {
+      this.pixKeyDeletionBlockingStub.deletePixKey(
+        PixKeyDeletionRequest
+          .newBuilder()
+          .setPixId(pixId)
+          .setClientId(clientId)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(Status.UNAVAILABLE.code, statusRuntimeException.status.code)
+    }
+
+    assertTrue(this.pixKeyRepository.existsById(pixId))
   }
 }
