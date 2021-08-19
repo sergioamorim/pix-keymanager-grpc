@@ -307,7 +307,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setAccountType(SAVINGS)
-          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownStatusClientId)
+          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownResponseClientId)
           .setType(RANDOM)
           .build()
       )
@@ -367,6 +367,120 @@ class PixKeyCreationEndpointTests @Inject constructor(
     }.also { statusRuntimeException: StatusRuntimeException ->
       assertEquals(
         Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return already exists when the bcb system returns unprocessable entity`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(UUID.randomUUID().toString())
+          .setAccountType(CHECKING)
+          .setKey(this.mockBeanFactory.bcbCreateReturnsUnprocessableEntityPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.ALREADY_EXISTS.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return unavailable when the bcb system returns an unknown response`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(UUID.randomUUID().toString())
+          .setAccountType(CHECKING)
+          .setKey(this.mockBeanFactory.bcbCreateReturnsUnknownResponsePixKey)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.UNAVAILABLE.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return unavailable when an HttpClientException is thrown when connecting to the bcb system`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(UUID.randomUUID().toString())
+          .setAccountType(CHECKING)
+          .setKey(this.mockBeanFactory.bcbCreateReturnsHttpClientExceptionPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.UNAVAILABLE.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return internal error when an unknown exception is thrown when connecting to the bcb system`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(UUID.randomUUID().toString())
+          .setAccountType(CHECKING)
+          .setKey(this.mockBeanFactory.bcbCreateReturnsUnknownExceptionPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INTERNAL.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return unavailable when an HttpClientException is thrown when connecting to the erp system`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(this.mockBeanFactory.erpReadReturnsHttpClientExceptionClientId)
+          .setAccountType(CHECKING)
+          .setKey("+55667788990")
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.UNAVAILABLE.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return internal error when an unknown exception is thrown when connecting to the erp system`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setType(PHONE_NUMBER)
+          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownExceptionClientId)
+          .setAccountType(CHECKING)
+          .setKey("+55667788990")
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INTERNAL.code, statusRuntimeException.status.code
       )
     }
   }

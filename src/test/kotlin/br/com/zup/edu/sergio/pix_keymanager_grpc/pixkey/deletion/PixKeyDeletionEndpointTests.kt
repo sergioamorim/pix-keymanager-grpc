@@ -188,4 +188,60 @@ class PixKeyDeletionEndpointTests @Inject constructor(
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
   }
+
+  @Test
+  fun `should return unavailable and not delete the pix key when an HttpClientException is thrown when connecting to the bcb system`() {
+    val clientId: String = UUID.randomUUID().toString()
+    val pixId: String = this.pixKeyRepository.save(
+      PixKey(
+        type = PixKey.KeyType.CPF,
+        key = this.mockBeanFactory.bcbDeleteReturnsHttpClientExceptionPixKey,
+        clientId = clientId,
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
+      )
+    ).id ?: "should fail"
+
+    assertThrows(StatusRuntimeException::class.java) {
+      this.pixKeyDeletionBlockingStub.deletePixKey(
+        PixKeyDeletionRequest
+          .newBuilder()
+          .setPixId(pixId)
+          .setClientId(clientId)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(Status.UNAVAILABLE.code, statusRuntimeException.status.code)
+    }
+
+    assertTrue(this.pixKeyRepository.existsById(pixId))
+  }
+
+  @Test
+  fun `should return internal error and not delete the pix key when an unknown exception is thrown when connecting to the bcb system`() {
+    val clientId: String = UUID.randomUUID().toString()
+    val pixId: String = this.pixKeyRepository.save(
+      PixKey(
+        type = PixKey.KeyType.CPF,
+        key = this.mockBeanFactory.bcbDeleteReturnsUnknownExceptionPixKey,
+        clientId = clientId,
+        accountType = PixKey.AccountType.CHECKING,
+        participant = "60701190"
+      )
+    ).id ?: "should fail"
+
+    assertThrows(StatusRuntimeException::class.java) {
+      this.pixKeyDeletionBlockingStub.deletePixKey(
+        PixKeyDeletionRequest
+          .newBuilder()
+          .setPixId(pixId)
+          .setClientId(clientId)
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(Status.INTERNAL.code, statusRuntimeException.status.code)
+    }
+
+    assertTrue(this.pixKeyRepository.existsById(pixId))
+  }
 }

@@ -11,6 +11,7 @@ import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Replaces
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -20,11 +21,20 @@ import java.util.*
 @Factory
 class MockBeanFactory {
 
+  val bcbCreateReturnsUnprocessableEntityPixKey: String = "+55934077699"
+  val bcbCreateReturnsUnknownResponsePixKey: String = "+55985124398"
+  val bcbCreateReturnsHttpClientExceptionPixKey: String = "+55917894533"
+  val bcbCreateReturnsUnknownExceptionPixKey: String = "+55945348090"
+
   val bcbDeleteReturnsNotFoundPixKey: String = "05034262100"
   val bcbDeleteReturnsUnknownResponsePixKey: String = "80756103428"
+  val bcbDeleteReturnsHttpClientExceptionPixKey: String = "25198181900"
+  val bcbDeleteReturnsUnknownExceptionPixKey: String = "70529885263"
 
   val erpReadReturnsNotFoundClientId: String = UUID.randomUUID().toString()
-  val erpReadReturnsUnknownStatusClientId: String = UUID.randomUUID().toString()
+  val erpReadReturnsUnknownResponseClientId: String = UUID.randomUUID().toString()
+  val erpReadReturnsHttpClientExceptionClientId: String = UUID.randomUUID().toString()
+  val erpReadReturnsUnknownExceptionClientId: String = UUID.randomUUID().toString()
 
   @get:Bean
   @get:Replaces(bean = BcbClient::class)
@@ -32,15 +42,35 @@ class MockBeanFactory {
     override fun createPixKey(
       createPixKeyRequest: CreatePixKeyRequest
     ): Single<CreatePixKeyResponse> =
-      Single.just(
-        CreatePixKeyResponse(
-          keyType = createPixKeyRequest.keyType,
-          key = createPixKeyRequest.key,
-          bankAccount = createPixKeyRequest.bankAccount,
-          owner = createPixKeyRequest.owner,
-          createdAt = LocalDateTime.now()
+      when (createPixKeyRequest.key) {
+        this@MockBeanFactory.bcbCreateReturnsUnprocessableEntityPixKey ->
+          Single.error(
+            HttpClientResponseException(
+              "", HttpResponse.unprocessableEntity<Any>()
+            )
+          )
+
+        this@MockBeanFactory.bcbCreateReturnsUnknownResponsePixKey ->
+          Single.error(
+            HttpClientResponseException("", HttpResponse.serverError<Any>())
+          )
+
+        this@MockBeanFactory.bcbCreateReturnsHttpClientExceptionPixKey ->
+          Single.error(HttpClientException(""))
+
+        this@MockBeanFactory.bcbCreateReturnsUnknownExceptionPixKey ->
+          Single.error(RuntimeException())
+
+        else -> Single.just(
+          CreatePixKeyResponse(
+            keyType = createPixKeyRequest.keyType,
+            key = createPixKeyRequest.key,
+            bankAccount = createPixKeyRequest.bankAccount,
+            owner = createPixKeyRequest.owner,
+            createdAt = LocalDateTime.now()
+          )
         )
-      )
+      }
 
     override fun deletePixKey(
       key: String, deletePixKeyRequest: DeletePixKeyRequest
@@ -51,9 +81,16 @@ class MockBeanFactory {
             HttpClientResponseException("", HttpResponse.notFound<Any>())
           )
 
-        this@MockBeanFactory.bcbDeleteReturnsUnknownResponsePixKey -> Completable.error(
-          HttpClientResponseException("", HttpResponse.serverError<Any>())
-        )
+        this@MockBeanFactory.bcbDeleteReturnsUnknownResponsePixKey ->
+          Completable.error(
+            HttpClientResponseException("", HttpResponse.serverError<Any>())
+          )
+
+        this@MockBeanFactory.bcbDeleteReturnsHttpClientExceptionPixKey ->
+          Completable.error(HttpClientException(""))
+
+        this@MockBeanFactory.bcbDeleteReturnsUnknownExceptionPixKey ->
+          Completable.error(RuntimeException())
 
         else -> Completable.complete()
       }
@@ -66,13 +103,19 @@ class MockBeanFactory {
       clientId: String, accountType: AccountType?
     ): Single<DadosDaContaResponse> =
       when (clientId) {
-        this@MockBeanFactory.erpReadReturnsUnknownStatusClientId -> Single.error(
+        this@MockBeanFactory.erpReadReturnsUnknownResponseClientId -> Single.error(
           HttpClientResponseException("", HttpResponse.serverError<Any>())
         )
 
         this@MockBeanFactory.erpReadReturnsNotFoundClientId -> Single.error(
           HttpClientResponseException("", HttpResponse.notFound<Any>())
         )
+
+        this@MockBeanFactory.erpReadReturnsHttpClientExceptionClientId ->
+          Single.error(HttpClientException(""))
+
+        this@MockBeanFactory.erpReadReturnsUnknownExceptionClientId ->
+          Single.error(RuntimeException())
 
         else -> Single.just(
           DadosDaContaResponse(
