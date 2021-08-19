@@ -6,6 +6,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.CreatePixKeyRe
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.DadosDaContaResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.ErpAccountReader
 import br.com.zup.edu.sergio.pix_keymanager_grpc.isUnprocessableEntity
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
@@ -13,6 +14,7 @@ import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Single
+import org.hibernate.exception.ConstraintViolationException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,7 +58,7 @@ class PixKeyCreator @Inject constructor(
       PixKeyCreationResponse
         .newBuilder()
         .setPixId(
-          this.pixKeyRepository.save(
+          this.savedPixKey(
             createPixKeyResponse.asPixKey(pixKeyCreationRequest.clientId)
           ).id
         )
@@ -78,6 +80,12 @@ class PixKeyCreator @Inject constructor(
         Single.error(translatedError(error = error))
       }
 
+  private fun savedPixKey(pixKey: PixKey) =
+    try {
+      this.pixKeyRepository.save(pixKey)
+    } catch (throwable: Throwable) {
+      throw persistenceError(throwable)
+    }
 }
 
 private fun translatedError(error: Throwable) =
@@ -118,6 +126,29 @@ private fun responseError(
     .augmentDescription(
       "can't create the pix key because the bcb system is " +
       "returning an unknown response"
+    )
+    .asRuntimeException()
+}
+
+private fun persistenceError(throwable: Throwable): Throwable {
+  if (throwable.cause is ConstraintViolationException) {
+    return Status.ABORTED
+      .withDescription(
+        "can't create a pix key due to a concurrency error"
+      )
+      .augmentDescription(
+        "the pix key could not be persisted after validation, " +
+        "most likely due to a concurrency between requests, and the error " +
+        "was catch by a constraint on the database"
+      )
+      .asRuntimeException()
+  }
+
+  return Status.INTERNAL
+    .withDescription("internal problem on pix key creation")
+    .augmentDescription(
+      "unexpected behavior when persisting the pix key " +
+      "to the database"
     )
     .asRuntimeException()
 }

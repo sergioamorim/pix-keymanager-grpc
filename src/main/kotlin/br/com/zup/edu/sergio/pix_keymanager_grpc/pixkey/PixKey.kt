@@ -9,7 +9,7 @@ class PixKey(
   @Enumerated(EnumType.STRING)
   val type: KeyType,
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   val key: String,
 
   @Column(nullable = false)
