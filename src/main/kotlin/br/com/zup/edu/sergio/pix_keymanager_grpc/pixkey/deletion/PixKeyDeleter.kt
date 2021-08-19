@@ -30,7 +30,7 @@ class PixKeyDeleter @Inject constructor(
       )
       .onErrorResumeNext { error: Throwable ->
         translatedError(error = error)?.let(Completable::error)
-        Completable.complete()
+          ?: Completable.complete()
       }
 }
 
