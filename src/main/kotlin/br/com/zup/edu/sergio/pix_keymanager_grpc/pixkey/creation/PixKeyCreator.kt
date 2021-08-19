@@ -25,8 +25,8 @@ class PixKeyCreator @Inject constructor(
 
   fun createPixKey(
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<PixKeyCreationResponse> {
-    return this.erpAccountReader
+  ): Single<PixKeyCreationResponse> =
+    this.erpAccountReader
       .readAccount(pixKeyCreationRequest = pixKeyCreationRequest)
       .flatMap { dadosDaContaResponse: DadosDaContaResponse ->
         this.createPixKeyWithDadosDaContaResponse(
@@ -34,7 +34,6 @@ class PixKeyCreator @Inject constructor(
           dadosDaContaResponse = dadosDaContaResponse
         )
       }
-  }
 
   private fun createPixKeyWithDadosDaContaResponse(
     pixKeyCreationRequest: PixKeyCreationRequest,
@@ -52,8 +51,8 @@ class PixKeyCreator @Inject constructor(
   private fun pixCreationResponseOfSavedPixKey(
     createPixKeyResponse: CreatePixKeyResponse,
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<PixKeyCreationResponse> {
-    return Single.just(
+  ): Single<PixKeyCreationResponse> =
+    Single.just(
       PixKeyCreationResponse
         .newBuilder()
         .setPixId(
@@ -63,7 +62,6 @@ class PixKeyCreator @Inject constructor(
         )
         .build()
     )
-  }
 
   private fun creationResult(
     pixKeyCreationRequest: PixKeyCreationRequest,
