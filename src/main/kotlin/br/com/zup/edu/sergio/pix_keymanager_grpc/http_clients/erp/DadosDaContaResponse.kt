@@ -46,6 +46,4 @@ class DadosDaContaResponse(
         taxIdNumber = this.cpf
       )
   }
-
-  enum class AccountType { CONTA_CORRENTE, CONTA_POUPANCA }
 }

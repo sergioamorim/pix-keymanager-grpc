@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.KeyType
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.ErpAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.isNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 
@@ -63,10 +63,10 @@ fun PixKeyCreationRequest.bcbKeyType(): KeyType =
 fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
   this.key.length > maxLength
 
-fun PixKeyCreationRequest.erpAccountType(): ErpAccountType =
+fun PixKeyCreationRequest.erpAccountType(): AccountType =
   when (this.accountType) {
-    PixKeyCreationRequest.AccountType.CHECKING -> ErpAccountType.CONTA_CORRENTE
-    PixKeyCreationRequest.AccountType.SAVINGS -> ErpAccountType.CONTA_POUPANCA
+    PixKeyCreationRequest.AccountType.CHECKING -> AccountType.CONTA_CORRENTE
+    PixKeyCreationRequest.AccountType.SAVINGS -> AccountType.CONTA_POUPANCA
     else -> throw AssertionError(
       """
         PixKeyCreationRequest.erpAccountType should never be called with an 

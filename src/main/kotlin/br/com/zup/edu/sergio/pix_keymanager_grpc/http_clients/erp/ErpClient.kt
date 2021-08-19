@@ -15,6 +15,6 @@ interface ErpClient {
     clientId: String,
 
     @QueryValue("tipo")
-    accountType: ErpAccountType?
+    accountType: AccountType?
   ): Single<DadosDaContaResponse>
 }
