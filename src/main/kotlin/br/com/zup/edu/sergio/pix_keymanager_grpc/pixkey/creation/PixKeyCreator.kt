@@ -10,7 +10,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import io.grpc.Status
-import io.grpc.StatusRuntimeException
+import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Single
 import javax.inject.Inject
@@ -76,17 +76,36 @@ class PixKeyCreator @Inject constructor(
           dadosDaContaResponse = dadosDaContaResponse
         )
       )
-      .doOnError { error: Throwable ->
-        if (error is HttpClientResponseException) {
-          Single.error<CreatePixKeyResponse>(translatedError(error = error))
-        }
+      .onErrorResumeNext { error: Throwable ->
+        Single.error(translatedError(error = error))
       }
 
 }
 
-private fun translatedError(
+private fun translatedError(error: Throwable) =
+  when (error) {
+    is HttpClientResponseException -> responseError(error)
+
+    is HttpClientException -> Status.UNAVAILABLE
+      .withDescription("bcb pix key creation service unavailable")
+      .augmentDescription(
+        "unable to create the pix key because the bcb system's " +
+        "pix key creation service isn't responding"
+      )
+      .asRuntimeException()
+
+    else -> Status.INTERNAL
+      .withDescription("internal problem on pix key creation")
+      .augmentDescription(
+        "unexpected behavior when connecting to the bcb system's " +
+        "pix key creation service"
+      )
+      .asRuntimeException()
+  }
+
+private fun responseError(
   error: HttpClientResponseException
-): StatusRuntimeException {
+): Throwable {
   if (error.isUnprocessableEntity()) {
     return Status.ALREADY_EXISTS
       .withDescription("pix key must be unique")

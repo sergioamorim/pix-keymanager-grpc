@@ -6,7 +6,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.isDifferentFromNotFound
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import io.grpc.Status
-import io.grpc.StatusRuntimeException
+import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
 import javax.inject.Inject
@@ -28,19 +28,36 @@ class PixKeyDeleter @Inject constructor(
           key = pixKey.key, participant = pixKey.participant
         )
       )
-      .doOnError { error: Throwable ->
-        if (error is HttpClientResponseException) {
-          translatedError(error = error)?.let { translatedError: Throwable ->
-            Completable.error(translatedError)
-          }
-        }
+      .onErrorResumeNext { error: Throwable ->
+        translatedError(error = error)?.let(Completable::error)
         Completable.complete()
       }
 }
 
-private fun translatedError(
+private fun translatedError(error: Throwable) =
+  when (error) {
+    is HttpClientResponseException -> responseError(error)
+
+    is HttpClientException -> Status.UNAVAILABLE
+      .withDescription("bcb pix key deletion service unavailable")
+      .augmentDescription(
+        "unable to delete the pix key because the bcb system's " +
+        "pix key deletion service isn't responding"
+      )
+      .asRuntimeException()
+
+    else -> Status.INTERNAL
+      .withDescription("internal problem on pix key deletion")
+      .augmentDescription(
+        "unexpected behavior when connecting to the bcb system's " +
+        "pix key deletion service"
+      )
+      .asRuntimeException()
+  }
+
+private fun responseError(
   error: HttpClientResponseException
-): StatusRuntimeException? {
+): Throwable? {
   if (error.isDifferentFromNotFound()) {
     return Status.UNAVAILABLE
       .withDescription("bcb pix key deletion service unavailable")
