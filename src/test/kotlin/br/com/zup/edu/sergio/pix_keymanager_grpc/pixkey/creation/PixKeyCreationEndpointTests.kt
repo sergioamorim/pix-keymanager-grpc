@@ -32,16 +32,23 @@ class PixKeyCreationEndpointTests @Inject constructor(
 
   @Test
   fun `should save a valid random pix key to the database and return it's id`() {
+    val clientId: String = UUID.randomUUID().toString()
     val response: PixKeyCreationResponse = this.grpcClient.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
         .setAccountType(CHECKING)
-        .setClientId(UUID.randomUUID().toString())
+        .setClientId(clientId)
         .setType(RANDOM)
         .build()
     )
 
     assertTrue(this.pixKeyRepository.existsById(response.pixId))
+
+    this.pixKeyRepository.getById(response.pixId).also { pixKey: PixKey ->
+      assertEquals(PixKey.AccountType.CHECKING, pixKey.accountType)
+      assertEquals(clientId, pixKey.clientId)
+      assertEquals(PixKey.KeyType.RANDOM, pixKey.type)
+    }
   }
 
   @Test
@@ -481,6 +488,25 @@ class PixKeyCreationEndpointTests @Inject constructor(
     }.also { statusRuntimeException: StatusRuntimeException ->
       assertEquals(
         Status.INTERNAL.code, statusRuntimeException.status.code
+      )
+    }
+  }
+
+  @Test
+  fun `should return invalid argument when a phone number key does not have a phone number format`() {
+    assertThrows(StatusRuntimeException::class.java) {
+      this.grpcClient.createPixKey(
+        PixKeyCreationRequest
+          .newBuilder()
+          .setAccountType(CHECKING)
+          .setClientId(UUID.randomUUID().toString())
+          .setType(PHONE_NUMBER)
+          .setKey("sergio@zup.com.br")
+          .build()
+      )
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      assertEquals(
+        Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code
       )
     }
   }

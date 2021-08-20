@@ -7,7 +7,6 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 import javax.inject.Inject
@@ -18,15 +17,11 @@ class PixKeyCreatorTests @Inject constructor(
   private val pixKeyRepository: PixKeyRepository
 ) {
 
-  @BeforeEach
-  fun setUp() {
-    this.pixKeyRepository.deleteAll()
-  }
-
   @Test
   fun `should return aborted when the database throws a ConstraintViolationException`() {
     val email = "sergio@zup"
 
+    this.pixKeyRepository.deleteAll()
     this.pixKeyRepository.save(
       PixKey(
         type = PixKey.KeyType.EMAIL,
