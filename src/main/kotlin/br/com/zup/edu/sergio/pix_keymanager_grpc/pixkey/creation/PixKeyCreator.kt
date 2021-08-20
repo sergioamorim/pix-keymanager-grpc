@@ -50,21 +50,6 @@ class PixKeyCreator @Inject constructor(
         )
       }
 
-  private fun pixCreationResponseOfSavedPixKey(
-    createPixKeyResponse: CreatePixKeyResponse,
-    pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<PixKeyCreationResponse> =
-    Single.just(
-      PixKeyCreationResponse
-        .newBuilder()
-        .setPixId(
-          this.savedPixKey(
-            createPixKeyResponse.asPixKey(pixKeyCreationRequest.clientId)
-          ).id
-        )
-        .build()
-    )
-
   private fun creationResult(
     pixKeyCreationRequest: PixKeyCreationRequest,
     dadosDaContaResponse: DadosDaContaResponse
@@ -80,11 +65,26 @@ class PixKeyCreator @Inject constructor(
         Single.error(translatedError(error = error))
       }
 
+  private fun pixCreationResponseOfSavedPixKey(
+    createPixKeyResponse: CreatePixKeyResponse,
+    pixKeyCreationRequest: PixKeyCreationRequest
+  ): Single<PixKeyCreationResponse> =
+    Single.just(
+      PixKeyCreationResponse
+        .newBuilder()
+        .setPixId(
+          this.savedPixKey(
+            createPixKeyResponse.asPixKey(pixKeyCreationRequest.clientId)
+          ).id
+        )
+        .build()
+    )
+
   private fun savedPixKey(pixKey: PixKey) =
     try {
       this.pixKeyRepository.save(pixKey)
-    } catch (throwable: Throwable) {
-      throw persistenceError(throwable)
+    } catch (error: Throwable) {
+      throw persistenceError(error = error)
     }
 }
 
@@ -130,8 +130,8 @@ private fun responseError(
     .asRuntimeException()
 }
 
-private fun persistenceError(throwable: Throwable): Throwable {
-  if (throwable.cause is ConstraintViolationException) {
+private fun persistenceError(error: Throwable): Throwable {
+  if (error.cause is ConstraintViolationException) {
     return Status.ABORTED
       .withDescription(
         "can't create a pix key due to a concurrency error"

@@ -34,7 +34,7 @@ class PixKeyDeleter @Inject constructor(
       }
 }
 
-private fun translatedError(error: Throwable) =
+private fun translatedError(error: Throwable): Throwable? =
   when (error) {
     is HttpClientResponseException -> responseError(error)
 
