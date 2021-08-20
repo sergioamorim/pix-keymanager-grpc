@@ -10,7 +10,7 @@ import io.reactivex.Completable
 class EmailKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isEmailKey() and request.hasNotAValidEmailKey()) {
+    if (request.isEmailKey and request.hasNotAValidEmailKey) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("email key with invalid format")

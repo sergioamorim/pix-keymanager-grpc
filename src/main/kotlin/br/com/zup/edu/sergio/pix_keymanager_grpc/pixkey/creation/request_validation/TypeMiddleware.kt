@@ -9,7 +9,7 @@ import io.reactivex.Completable
 class TypeMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.hasInvalidType()) {
+    if (request.hasInvalidType) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("type is required")

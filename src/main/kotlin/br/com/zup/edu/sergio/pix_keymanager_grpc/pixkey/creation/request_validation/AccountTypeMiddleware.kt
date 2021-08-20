@@ -9,7 +9,7 @@ import io.reactivex.Completable
 class AccountTypeMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.hasInvalidAccountType()) {
+    if (request.hasInvalidAccountType) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("account type is required")

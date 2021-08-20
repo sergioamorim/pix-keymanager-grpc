@@ -11,7 +11,7 @@ class KeyUniquenessMiddleware(
   private val pixKeyRepository: PixKeyRepository
 ) : RequestMiddleware<PixKeyCreationRequest>() {
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isNotRandomKey() and this.pixKeyRepository.existsByKey(request.key)) {
+    if (request.isNotRandomKey and this.pixKeyRepository.existsByKey(request.key)) {
       return Completable.error(
         Status.ALREADY_EXISTS
           .withDescription("key must be unique")

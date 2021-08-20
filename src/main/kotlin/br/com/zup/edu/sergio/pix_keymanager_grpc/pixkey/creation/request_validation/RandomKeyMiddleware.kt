@@ -9,7 +9,7 @@ import io.reactivex.Completable
 class RandomKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isRandomKey() and request.key.isNotEmpty()) {
+    if (request.isRandomKey and request.key.isNotEmpty()) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("random key must be empty")

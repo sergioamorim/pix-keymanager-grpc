@@ -8,7 +8,7 @@ class CreatePixKeyRequest(
   pixKeyCreationRequest: PixKeyCreationRequest,
   dadosDaContaResponse: DadosDaContaResponse
 ) {
-  val keyType: KeyType = pixKeyCreationRequest.bcbKeyType()
+  val keyType: KeyType = pixKeyCreationRequest.bcbKeyType
   val key: String = pixKeyCreationRequest.key
   val bankAccount: BankAccount = dadosDaContaResponse.bcbBankAccount
   val owner: Owner = dadosDaContaResponse.bcbOwner

@@ -9,7 +9,7 @@ import io.reactivex.Completable
 class ClientIdMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isClientIdNotAnUuid()) {
+    if (request.isClientIdNotAnUuid) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("client id must be an UUID")

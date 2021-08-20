@@ -10,7 +10,7 @@ import io.reactivex.Completable
 class CpfKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isCpfKey() and request.hasNotAValidCpfKey()) {
+    if (request.isCpfKey and request.hasNotAValidCpfKey) {
       return Completable.error(
         Status.INVALID_ARGUMENT
           .withDescription("cpf key with invalid format")

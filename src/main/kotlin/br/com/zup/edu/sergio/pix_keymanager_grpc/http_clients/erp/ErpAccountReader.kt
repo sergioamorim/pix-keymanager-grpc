@@ -19,7 +19,7 @@ class ErpAccountReader @Inject constructor(private val erpClient: ErpClient) {
     this.erpClient
       .readAccount(
         clientId = pixKeyCreationRequest.clientId,
-        accountType = pixKeyCreationRequest.erpAccountType()
+        accountType = pixKeyCreationRequest.erpAccountType
       )
       .onErrorResumeNext { error: Throwable ->
         Single.error(translatedError(error = error))

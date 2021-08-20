@@ -5,48 +5,52 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.isNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 
-fun PixKeyCreationRequest.isCpfKey(): Boolean =
-  this.type.equals(PixKeyCreationRequest.KeyType.CPF)
+val PixKeyCreationRequest.isCpfKey: Boolean
+  get() = this.type.equals(PixKeyCreationRequest.KeyType.CPF)
 
-fun PixKeyCreationRequest.isPhoneNumberKey(): Boolean =
-  this.type.equals(PixKeyCreationRequest.KeyType.PHONE_NUMBER)
+val PixKeyCreationRequest.isPhoneNumberKey: Boolean
+  get() = this.type.equals(PixKeyCreationRequest.KeyType.PHONE_NUMBER)
 
-fun PixKeyCreationRequest.isRandomKey(): Boolean =
-  this.type.equals(PixKeyCreationRequest.KeyType.RANDOM)
+val PixKeyCreationRequest.isRandomKey: Boolean
+  get() = this.type.equals(PixKeyCreationRequest.KeyType.RANDOM)
 
-fun PixKeyCreationRequest.isNotRandomKey(): Boolean = !this.isRandomKey()
+val PixKeyCreationRequest.isNotRandomKey: Boolean
+  get() = !this.isRandomKey
 
-fun PixKeyCreationRequest.isEmailKey(): Boolean =
-  this.type.equals(PixKeyCreationRequest.KeyType.EMAIL)
+val PixKeyCreationRequest.isEmailKey: Boolean
+  get() = this.type.equals(PixKeyCreationRequest.KeyType.EMAIL)
 
-fun PixKeyCreationRequest.hasNotAValidCpfKey(): Boolean =
-  !this.key.matches(Regex(pattern = "^[0-9]{11}\$"))
+val PixKeyCreationRequest.hasNotAValidCpfKey: Boolean
+  get() = !this.key.matches(Regex(pattern = "^[0-9]{11}\$"))
 
-fun PixKeyCreationRequest.hasNotAValidPhoneNumberKey(): Boolean =
-  !this.key.matches(Regex(pattern = "^\\+[1-9][0-9]\\d{1,14}\$"))
+val PixKeyCreationRequest.hasNotAValidPhoneNumberKey: Boolean
+  get() = !this.key.matches(Regex(pattern = "^\\+[1-9][0-9]\\d{1,14}\$"))
 
-fun PixKeyCreationRequest.hasNotAValidEmailKey(): Boolean =
-  !this.key.matches(Regex(pattern = ".+@.+\\..+"))
+val PixKeyCreationRequest.hasNotAValidEmailKey: Boolean
+  get() = !this.key.matches(Regex(pattern = ".+@.+\\..+"))
 
-fun PixKeyCreationRequest.hasInvalidAccountType(): Boolean =
-  this.accountType !in listOf(
+val PixKeyCreationRequest.hasInvalidAccountType: Boolean
+  get() = this.accountType !in listOf(
     PixKeyCreationRequest.AccountType.CHECKING,
     PixKeyCreationRequest.AccountType.SAVINGS
   )
 
-fun PixKeyCreationRequest.hasInvalidType(): Boolean =
-  this.type !in listOf(
+val PixKeyCreationRequest.hasInvalidType: Boolean
+  get() = this.type !in listOf(
     PixKeyCreationRequest.KeyType.CPF,
     PixKeyCreationRequest.KeyType.EMAIL,
     PixKeyCreationRequest.KeyType.PHONE_NUMBER,
     PixKeyCreationRequest.KeyType.RANDOM
   )
 
-fun PixKeyCreationRequest.isClientIdNotAnUuid(): Boolean =
-  this.clientId.isNotAnUuid()
+val PixKeyCreationRequest.isClientIdNotAnUuid: Boolean
+  get() = this.clientId.isNotAnUuid()
 
-fun PixKeyCreationRequest.bcbKeyType(): KeyType =
-  when (this.type) {
+fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
+  this.key.length > maxLength
+
+val PixKeyCreationRequest.bcbKeyType: KeyType
+  get() = when (this.type) {
     PixKeyCreationRequest.KeyType.CPF -> KeyType.CPF
     PixKeyCreationRequest.KeyType.PHONE_NUMBER -> KeyType.PHONE
     PixKeyCreationRequest.KeyType.EMAIL -> KeyType.EMAIL
@@ -60,11 +64,8 @@ fun PixKeyCreationRequest.bcbKeyType(): KeyType =
     )
   }
 
-fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
-  this.key.length > maxLength
-
-fun PixKeyCreationRequest.erpAccountType(): AccountType =
-  when (this.accountType) {
+val PixKeyCreationRequest.erpAccountType: AccountType
+  get() = when (this.accountType) {
     PixKeyCreationRequest.AccountType.CHECKING -> AccountType.CONTA_CORRENTE
     PixKeyCreationRequest.AccountType.SAVINGS -> AccountType.CONTA_POUPANCA
     else -> throw AssertionError(
