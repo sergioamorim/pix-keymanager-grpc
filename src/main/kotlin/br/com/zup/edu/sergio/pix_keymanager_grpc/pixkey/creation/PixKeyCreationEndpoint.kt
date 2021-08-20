@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.completeOnNext
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
@@ -52,12 +53,6 @@ class PixKeyCreationEndpoint @Inject constructor(
     this.pixKeyCreator
       .createPixKey(pixKeyCreationRequest)
       .observeOn(this.scheduler)
-      .subscribe(
-        { pixKeyCreationResponse: PixKeyCreationResponse ->
-          responseObserver.onNext(pixKeyCreationResponse)
-          responseObserver.onCompleted()
-        },
-        responseObserver::onError
-      )
+      .subscribe(responseObserver::completeOnNext, responseObserver::onError)
   }
 }

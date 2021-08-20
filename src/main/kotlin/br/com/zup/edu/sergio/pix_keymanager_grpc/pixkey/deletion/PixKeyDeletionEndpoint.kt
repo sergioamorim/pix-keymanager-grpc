@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.completeOnNext
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdIsUuidMiddleware
@@ -58,10 +59,7 @@ class PixKeyDeletionEndpoint @Inject constructor(
     this.pixKeyDeleter.deletePixKey(pixKey = pixKey)
       .observeOn(this.scheduler)
       .subscribe(
-        {
-          responseObserver.onNext(Empty.getDefaultInstance())
-          responseObserver.onCompleted()
-        },
+        { responseObserver.completeOnNext(Empty.getDefaultInstance()) },
         responseObserver::onError
       )
   }
