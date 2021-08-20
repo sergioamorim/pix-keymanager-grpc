@@ -1,6 +1,8 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
+import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolationWithADescription
+import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
@@ -28,7 +30,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  fun `should delete an existing pix key when the client id matches`() {
+  fun `should delete an existing pix key when the clientId matches`() {
     val clientId: String = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
@@ -52,7 +54,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  fun `should return not found when there is no key with the id informed on the database`() {
+  fun `should return NOT_FOUND when there is no pix key with the id informed on the database`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -62,12 +64,15 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      assertEquals(Status.NOT_FOUND.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.NOT_FOUND)
+
+      statusRuntimeException
+        .assertIsFieldViolationWithADescription(field = "pixId")
     }
   }
 
   @Test
-  fun `should return permission denied when the key exists but the client id doesn't match`() {
+  fun `should return PERMISSION_DENIED when the key exists but the clientId doesn't match`() {
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
         type = PixKey.KeyType.CPF,
@@ -87,14 +92,17 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      assertEquals(Status.PERMISSION_DENIED.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.PERMISSION_DENIED)
+
+      statusRuntimeException
+        .assertIsFieldViolationWithADescription(field = "pixId")
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
   }
 
   @Test
-  fun `should return invalid argument when the pix id is not sent`() {
+  fun `should return INVALID_ARGUMENT when the pixId is not sent`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -103,12 +111,15 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      assertEquals(Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
+
+      statusRuntimeException
+        .assertIsFieldViolationWithADescription(field = "pixId")
     }
   }
 
   @Test
-  fun `should return invalid argument when the client id is not sent`() {
+  fun `should return INVALID_ARGUMENT when the clientId is not sent`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -117,12 +128,13 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      assertEquals(Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
+      statusRuntimeException.assertIsFieldViolationWithADescription(field = "clientId")
     }
   }
 
   @Test
-  fun `should return invalid argument when the client id is not an UUID`() {
+  fun `should return INVALID_ARGUMENT when the clientId is not an UUID`() {
     assertThrows<StatusRuntimeException> {
       this.pixKeyDeletionBlockingStub.deletePixKey(
         PixKeyDeletionRequest
@@ -132,7 +144,8 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      assertEquals(Status.INVALID_ARGUMENT.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
+      statusRuntimeException.assertIsFieldViolationWithADescription(field = "clientId")
     }
   }
 
@@ -162,7 +175,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
   }
 
   @Test
-  fun `should return unavailable and not delete the pix key when the bcb server returns an unknown response`() {
+  fun `should return UNAVAILABLE and not delete the pix key when the bcb server returns an unknown response`() {
     val clientId: String = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
@@ -183,14 +196,14 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
-      assertEquals(Status.UNAVAILABLE.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.UNAVAILABLE)
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
   }
 
   @Test
-  fun `should return unavailable and not delete the pix key when an HttpClientException is thrown when connecting to the bcb system`() {
+  fun `should return UNAVAILABLE and not delete the pix key when an HttpClientException is thrown when connecting to the bcb system`() {
     val clientId: String = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
@@ -211,14 +224,14 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
-      assertEquals(Status.UNAVAILABLE.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.UNAVAILABLE)
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
   }
 
   @Test
-  fun `should return internal error and not delete the pix key when an unknown exception is thrown when connecting to the bcb system`() {
+  fun `should return INTERNAL and not delete the pix key when an unknown exception is thrown when connecting to the bcb system`() {
     val clientId: String = UUID.randomUUID().toString()
     val pixId: String = this.pixKeyRepository.save(
       PixKey(
@@ -239,7 +252,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
-      assertEquals(Status.INTERNAL.code, statusRuntimeException.status.code)
+      statusRuntimeException.assertStatus(status = Status.INTERNAL)
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
