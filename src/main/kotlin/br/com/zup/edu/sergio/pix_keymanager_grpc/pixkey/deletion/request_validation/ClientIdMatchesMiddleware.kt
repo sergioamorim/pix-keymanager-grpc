@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import io.grpc.Status
@@ -13,12 +14,11 @@ class ClientIdMatchesMiddleware(
   override fun check(request: PixKeyDeletionRequest): Completable {
     if (!this.pixKeyRepository.existsByIdAndClientId(request.pixId, request.clientId)) {
       return Completable.error(
-        Status.PERMISSION_DENIED
-          .withDescription("pix key does not belong to the client")
-          .augmentDescription(
-            "a pix key with this id was found, but the client id does not match"
-          )
-          .asRuntimeException()
+        fieldViolation(
+          field = "pixId",
+          status = Status.PERMISSION_DENIED,
+          description = "pixId must be of a pix key which belongs to the client"
+        )
       )
     }
 

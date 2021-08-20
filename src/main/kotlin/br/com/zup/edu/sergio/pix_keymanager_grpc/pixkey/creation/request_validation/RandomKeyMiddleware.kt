@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isRandomKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
@@ -11,10 +12,11 @@ class RandomKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
   override fun check(request: PixKeyCreationRequest): Completable {
     if (request.isRandomKey and request.key.isNotEmpty()) {
       return Completable.error(
-        Status.INVALID_ARGUMENT
-          .withDescription("random key must be empty")
-          .augmentDescription("the random key is generated afterwards")
-          .asRuntimeException()
+        fieldViolation(
+          field = "key",
+          status = Status.INVALID_ARGUMENT,
+          description = "must be empty (it will be generated afterwards)"
+        )
       )
     }
 

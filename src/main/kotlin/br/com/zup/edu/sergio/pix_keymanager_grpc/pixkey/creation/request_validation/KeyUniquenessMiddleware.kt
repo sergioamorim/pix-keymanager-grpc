@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isNotRandomKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
@@ -13,10 +14,11 @@ class KeyUniquenessMiddleware(
   override fun check(request: PixKeyCreationRequest): Completable {
     if (request.isNotRandomKey and this.pixKeyRepository.existsByKey(request.key)) {
       return Completable.error(
-        Status.ALREADY_EXISTS
-          .withDescription("key must be unique")
-          .augmentDescription("the key already exists in the database")
-          .asRuntimeException()
+        fieldViolation(
+          field = "key",
+          status = Status.ALREADY_EXISTS,
+          description = "must be unique"
+        )
       )
     }
 

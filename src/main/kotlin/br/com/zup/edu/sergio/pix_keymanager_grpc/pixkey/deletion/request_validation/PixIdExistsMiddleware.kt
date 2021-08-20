@@ -1,6 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import io.grpc.Status
@@ -13,10 +14,11 @@ class PixIdExistsMiddleware(
   override fun check(request: PixKeyDeletionRequest): Completable {
     if (!this.pixKeyRepository.existsById(request.pixId)) {
       return Completable.error(
-        Status.NOT_FOUND
-          .withDescription("pix key not found")
-          .augmentDescription("unable to find a pix key with this id")
-          .asRuntimeException()
+        fieldViolation(
+          field = "pixId",
+          status = Status.NOT_FOUND,
+          description = "pixId must be the id of an existing pix key"
+        )
       )
     }
 
