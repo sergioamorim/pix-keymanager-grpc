@@ -38,7 +38,9 @@ class DadosDaContaResponse(
 
   class InstituicaoResponse(private val nome: String, val ispb: String)
 
-  class TitularResponse(val id: String, val nome: String, val cpf: String) {
+  class TitularResponse(
+    private val id: String, private val nome: String, private val cpf: String
+  ) {
     val bcbOwner: Owner
       get() = Owner(
         type = Owner.OwnerType.NATURAL_PERSON,  // no support for LEGAL_PERSON yet
