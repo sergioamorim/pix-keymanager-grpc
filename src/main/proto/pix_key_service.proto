@@ -7,13 +7,18 @@ option objc_class_prefix = "PKS";
 package br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service PixKeyCreationService {
-  rpc CreatePixKey (PixKeyCreationRequest) returns (PixKeyCreationResponse) {}
+  rpc CreatePixKey(PixKeyCreationRequest) returns (PixKeyCreationResponse) {}
+}
+
+service PixKeyReadingService {
+  rpc ReadOnePixKey(PixKeyReadingOneRequest) returns (PixKeyReadingOneResponse) {}
 }
 
 service PixKeyDeletionService {
-  rpc DeletePixKey (PixKeyDeletionRequest) returns (google.protobuf.Empty) {}
+  rpc DeletePixKey(PixKeyDeletionRequest) returns (google.protobuf.Empty) {}
 }
 
 message PixKeyCreationRequest {
@@ -23,7 +28,7 @@ message PixKeyCreationRequest {
   AccountType account_type = 4;
 
   enum KeyType {
-    UNKNOWN_PIX_KEY_TYPE = 0;
+    UNKNOWN_KEY_TYPE = 0;
     CPF = 1;
     PHONE_NUMBER = 2;
     EMAIL = 3;
@@ -39,6 +44,48 @@ message PixKeyCreationRequest {
 
 message PixKeyCreationResponse {
   string pix_id = 1;
+}
+
+message PixKeyReadingOneRequest {
+  string client_id = 1;
+  string pix_id = 2;
+  string pix_key = 3;
+}
+
+message PixKeyReadingOneResponse {
+  string pix_id = 1;
+  string client_id = 2;
+  KeyType key_type = 3;
+  string key = 4;
+  Account account = 5;
+
+  message Account {
+    Client client = 1;
+    string institution = 2;
+    string agency = 3;
+    string number = 4;
+    AccountType account_type = 5;
+    google.protobuf.Timestamp creation = 6;
+
+    message Client {
+      string name = 1;
+      string national_registry_id = 2;
+    }
+
+    enum AccountType {
+      UNKNOWN = 0;
+      CHECKING = 1;
+      SAVINGS = 2;
+    }
+  }
+
+  enum KeyType {
+    UNKNOWN = 0;
+    CPF = 1;
+    PHONE_NUMBER = 2;
+    EMAIL = 3;
+    RANDOM = 4;
+  }
 }
 
 message PixKeyDeletionRequest {
