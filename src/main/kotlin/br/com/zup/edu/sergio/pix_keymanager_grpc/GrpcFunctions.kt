@@ -31,3 +31,10 @@ fun fieldIsNotAnUuidViolation(field: String): StatusRuntimeException =
     status = io.grpc.Status.INVALID_ARGUMENT,
     description = "must be an UUID (ex.: 123e4567-e89b-12d3-a456-426614174000)"
   )
+
+fun clientDoesNotOwnPixKeyViolation(): StatusRuntimeException =
+  fieldViolation(
+    field = "pix_id",
+    status = io.grpc.Status.PERMISSION_DENIED,
+    description = "pix_id must be of a pix key which is owned client"
+  )

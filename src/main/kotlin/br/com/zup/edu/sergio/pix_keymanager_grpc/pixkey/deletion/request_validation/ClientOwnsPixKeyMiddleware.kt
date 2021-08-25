@@ -1,28 +1,21 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
-import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
+import br.com.zup.edu.sergio.pix_keymanager_grpc.clientDoesNotOwnPixKeyViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
-import io.grpc.Status
 import io.reactivex.Completable
 
-class ClientIdMatchesMiddleware(
+class ClientOwnsPixKeyMiddleware(
   private val pixKeyRepository: PixKeyRepository
 ) : RequestMiddleware<PixKeyDeletionRequest>() {
 
   override fun check(request: PixKeyDeletionRequest): Completable {
     if (!this.pixKeyRepository.existsByIdAndClientId(request.pixId, request.clientId)) {
-      return Completable.error(
-        fieldViolation(
-          field = "pix_id",
-          status = Status.PERMISSION_DENIED,
-          description = "pix_id must be of a pix key which belongs to the client"
-        )
-      )
+      return Completable.error(clientDoesNotOwnPixKeyViolation())
     }
 
-    return this.checkNext(request)
+    return this.checkNext(request = request)
   }
 
 }

@@ -13,7 +13,7 @@ class ClientIdMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
       return Completable.error(fieldIsNotAnUuidViolation(field = "client_id"))
     }
 
-    return this.checkNext(request)
+    return this.checkNext(request = request)
   }
 
 }

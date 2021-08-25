@@ -5,9 +5,9 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.completeOnNext
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdIsUuidMiddleware
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientIdMatchesMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.ClientOwnsPixKeyMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.PixIdExistsMiddleware
-import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.PixIdNotBlankMiddleware
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation.PixIdIsUuidMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import com.google.protobuf.Empty
@@ -28,9 +28,9 @@ class PixKeyDeletionEndpoint @Inject constructor(
 
   init {
     this.requestValidationChain
-      .linkWith(PixIdNotBlankMiddleware())
+      .linkWith(PixIdIsUuidMiddleware())
       .linkWith(PixIdExistsMiddleware(this.pixKeyRepository))
-      .linkWith(ClientIdMatchesMiddleware(this.pixKeyRepository))
+      .linkWith(ClientOwnsPixKeyMiddleware(this.pixKeyRepository))
   }
 
   override fun deletePixKey(

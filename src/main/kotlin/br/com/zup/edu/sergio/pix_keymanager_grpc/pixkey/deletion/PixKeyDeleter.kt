@@ -36,7 +36,7 @@ class PixKeyDeleter @Inject constructor(
 
 private fun translatedError(error: Throwable): Throwable? =
   when (error) {
-    is HttpClientResponseException -> responseError(error)
+    is HttpClientResponseException -> responseError(error = error)
 
     is HttpClientException -> Status.UNAVAILABLE
       .withDescription("bcb pix key deletion service unavailable")

@@ -5,3 +5,6 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 
 fun PixKeyDeletionRequest.isClientIdNotAnUuid(): Boolean =
   this.clientId.isNotAnUuid()
+
+fun PixKeyDeletionRequest.isPixIdNotAnUuid(): Boolean =
+  this.pixId.isNotAnUuid()

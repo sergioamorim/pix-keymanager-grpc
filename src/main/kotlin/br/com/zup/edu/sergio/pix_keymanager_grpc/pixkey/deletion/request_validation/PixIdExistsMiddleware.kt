@@ -22,7 +22,7 @@ class PixIdExistsMiddleware(
       )
     }
 
-    return this.checkNext(request)
+    return this.checkNext(request = request)
   }
 
 }

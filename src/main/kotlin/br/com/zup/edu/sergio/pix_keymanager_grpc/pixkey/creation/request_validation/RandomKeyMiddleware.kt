@@ -20,6 +20,6 @@ class RandomKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
       )
     }
 
-    return this.checkNext(request)
+    return this.checkNext(request = request)
   }
 }
