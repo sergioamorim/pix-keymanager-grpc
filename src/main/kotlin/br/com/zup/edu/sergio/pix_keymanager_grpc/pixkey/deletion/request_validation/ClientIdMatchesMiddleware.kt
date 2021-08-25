@@ -15,9 +15,9 @@ class ClientIdMatchesMiddleware(
     if (!this.pixKeyRepository.existsByIdAndClientId(request.pixId, request.clientId)) {
       return Completable.error(
         fieldViolation(
-          field = "pixId",
+          field = "pix_id",
           status = Status.PERMISSION_DENIED,
-          description = "pixId must be of a pix key which belongs to the client"
+          description = "pix_id must be of a pix key which belongs to the client"
         )
       )
     }

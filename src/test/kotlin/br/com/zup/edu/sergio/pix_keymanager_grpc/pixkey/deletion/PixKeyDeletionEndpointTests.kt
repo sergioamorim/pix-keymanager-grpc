@@ -67,7 +67,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       statusRuntimeException.assertStatus(status = Status.NOT_FOUND)
 
       statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pixId")
+        .assertIsFieldViolationWithADescription(field = "pix_id")
     }
   }
 
@@ -95,7 +95,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       statusRuntimeException.assertStatus(status = Status.PERMISSION_DENIED)
 
       statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pixId")
+        .assertIsFieldViolationWithADescription(field = "pix_id")
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
@@ -114,7 +114,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
 
       statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pixId")
+        .assertIsFieldViolationWithADescription(field = "pix_id")
     }
   }
 
@@ -129,7 +129,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolationWithADescription(field = "clientId")
+      statusRuntimeException.assertIsFieldViolationWithADescription(field = "client_id")
     }
   }
 
@@ -145,7 +145,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolationWithADescription(field = "clientId")
+      statusRuntimeException.assertIsFieldViolationWithADescription(field = "client_id")
     }
   }
 

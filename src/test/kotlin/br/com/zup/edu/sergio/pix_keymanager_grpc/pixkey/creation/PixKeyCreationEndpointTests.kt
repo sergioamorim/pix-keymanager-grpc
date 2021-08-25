@@ -394,7 +394,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
 
         statusRuntimeException
-          .assertIsFieldViolationWithADescription(field = "accountType")
+          .assertIsFieldViolationWithADescription(field = "account_type")
       }
 
       assertFalse(
@@ -446,7 +446,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
 
         statusRuntimeException
-          .assertIsFieldViolationWithADescription(field = "clientId")
+          .assertIsFieldViolationWithADescription(field = "client_id")
       }
 
       assertFalse(

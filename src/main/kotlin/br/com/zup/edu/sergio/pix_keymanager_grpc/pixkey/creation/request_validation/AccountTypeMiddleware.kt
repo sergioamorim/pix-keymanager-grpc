@@ -13,9 +13,9 @@ class AccountTypeMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
     if (request.hasInvalidAccountType) {
       return Completable.error(
         fieldViolation(
-          field = "accountType",
+          field = "account_type",
           status = Status.INVALID_ARGUMENT,
-          description = "accountType is required"
+          description = "account_type is required"
         )
       )
     }

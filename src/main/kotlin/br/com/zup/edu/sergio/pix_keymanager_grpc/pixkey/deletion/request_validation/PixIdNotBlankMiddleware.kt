@@ -12,7 +12,7 @@ class PixIdNotBlankMiddleware : RequestMiddleware<PixKeyDeletionRequest>() {
     if (request.pixId.isBlank()) {
       return Completable.error(
         fieldViolation(
-          field = "pixId",
+          field = "pix_id",
           status = Status.INVALID_ARGUMENT,
           description = "must not be blank"
         )

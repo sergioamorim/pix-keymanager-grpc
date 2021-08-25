@@ -15,9 +15,9 @@ class PixIdExistsMiddleware(
     if (!this.pixKeyRepository.existsById(request.pixId)) {
       return Completable.error(
         fieldViolation(
-          field = "pixId",
+          field = "pix_id",
           status = Status.NOT_FOUND,
-          description = "pixId must be the id of an existing pix key"
+          description = "pix_id must be the id of an existing pix key"
         )
       )
     }

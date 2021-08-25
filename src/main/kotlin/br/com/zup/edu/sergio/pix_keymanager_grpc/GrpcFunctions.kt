@@ -24,3 +24,10 @@ fun fieldViolation(
       )
       .build()
   )
+
+fun fieldIsNotAnUuidViolation(field: String): StatusRuntimeException =
+  fieldViolation(
+    field = field,
+    status = io.grpc.Status.INVALID_ARGUMENT,
+    description = "must be an UUID (ex.: 123e4567-e89b-12d3-a456-426614174000)"
+  )
