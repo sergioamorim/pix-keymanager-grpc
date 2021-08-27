@@ -1,5 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading
 
+import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
 import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolationWithADescription
 import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
@@ -20,7 +21,8 @@ import java.util.*
 @MicronautTest(transactional = false)
 class PixKeyReadingEndpointTests @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val grpcClient: PixKeyReadingServiceGrpc.PixKeyReadingServiceBlockingStub
+  private val grpcClient: PixKeyReadingServiceGrpc.PixKeyReadingServiceBlockingStub,
+  private val mockBeanFactory: MockBeanFactory
 ) {
 
   fun setUp() {
@@ -201,6 +203,62 @@ class PixKeyReadingEndpointTests @Inject constructor(
         statusRuntimeException.assertStatus(Status.NOT_FOUND)
         statusRuntimeException.assertIsFieldViolationWithADescription(field = "pix_id")
       }
+    }
+  }
+
+  @Test
+  fun `should return UNAVAILABLE when a HttpClientException is thrown when connecting to the bcb one pix key reading service`() {
+    assertThrows<StatusRuntimeException> {
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixKey(this.mockBeanFactory.bcbReadOneReturnsHttpClientExceptionPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException ->
+      statusRuntimeException.assertStatus(Status.UNAVAILABLE)
+    }
+  }
+
+  @Test
+  fun `should return NOT_FOUND when a bcb one pix key reading service returns not found`() {
+    assertThrows<StatusRuntimeException> {
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixKey(this.mockBeanFactory.bcbReadOneReturnsNotFoundPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException ->
+      statusRuntimeException.assertStatus(Status.NOT_FOUND)
+    }
+  }
+
+  @Test
+  fun `should return UNAVAILABLE when a bcb one pix key reading service returns an unknown response`() {
+    assertThrows<StatusRuntimeException> {
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixKey(this.mockBeanFactory.bcbReadOneReturnsUnknownResponsePixKey)
+          .build()
+      )
+    }.also { statusRuntimeException ->
+      statusRuntimeException.assertStatus(Status.UNAVAILABLE)
+    }
+  }
+
+  @Test
+  fun `should return INTERNAL when an unknown exception is thrown when connecting to the bcb one pix key reading service`() {
+    assertThrows<StatusRuntimeException> {
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixKey(this.mockBeanFactory.bcbReadOneReturnsUnknownExceptionPixKey)
+          .build()
+      )
+    }.also { statusRuntimeException ->
+      statusRuntimeException.assertStatus(Status.INTERNAL)
     }
   }
 }
