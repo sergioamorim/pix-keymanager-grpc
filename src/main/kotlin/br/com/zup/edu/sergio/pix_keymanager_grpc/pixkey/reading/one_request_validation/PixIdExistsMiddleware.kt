@@ -6,7 +6,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.isLocal
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
 import io.reactivex.Completable
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 class PixIdExistsMiddleware @Inject constructor(
   private val pixKeyRepository: PixKeyRepository

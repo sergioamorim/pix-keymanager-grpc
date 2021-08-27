@@ -12,6 +12,7 @@ import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
 import io.reactivex.Single
+import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.AccountType as BcbAccountType
@@ -152,5 +153,15 @@ class MockBeanFactory {
           )
         )
       }
+  }
+
+  @get:Bean
+  @get:Replaces(StrParticipantsClient::class)
+  val strParticipantsClientMock: StrParticipantsClient = object : StrParticipantsClient {
+    override fun getStrParticipantsCsv(): Single<ByteArray> {
+      return Single.just(
+        File("src/test/resources/ParticipantesSTRport.csv").readBytes()
+      )
+    }
   }
 }

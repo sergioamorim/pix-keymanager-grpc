@@ -13,8 +13,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceG
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import io.reactivex.Scheduler
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 class PixKeyDeletionEndpoint @Inject constructor(

@@ -7,8 +7,8 @@ import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Single
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 class ErpAccountReader @Inject constructor(private val erpClient: ErpClient) {

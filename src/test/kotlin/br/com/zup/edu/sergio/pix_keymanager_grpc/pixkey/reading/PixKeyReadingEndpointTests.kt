@@ -5,15 +5,17 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingServiceGrpc
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
-import javax.inject.Inject
 
 @MicronautTest(transactional = false)
 class PixKeyReadingEndpointTests @Inject constructor(
@@ -26,7 +28,77 @@ class PixKeyReadingEndpointTests @Inject constructor(
   }
 
   @Nested
-  inner class HappyPath
+  inner class HappyPath {
+    @Test
+    fun `should return details of the pix key when requesting by pix_id and client_id`() {
+      val key: String = UUID.randomUUID().toString()
+      val clientId: String = UUID.randomUUID().toString()
+      val pixId: String = this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = key,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      ).id ?: ""
+
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixId(pixId)
+          .setClientId(clientId)
+          .build()
+      ).also { pixKeyReadingOneResponse: PixKeyReadingOneResponse ->
+        assertEquals(key, pixKeyReadingOneResponse.key)
+        assertEquals("ITAÚ UNIBANCO S.A.", pixKeyReadingOneResponse.account.institution)
+        assertEquals(
+          PixKeyReadingOneResponse.KeyType.RANDOM,
+          pixKeyReadingOneResponse.keyType
+        )
+        assertEquals(clientId, pixKeyReadingOneResponse.clientId)
+        assertEquals(pixId, pixKeyReadingOneResponse.pixId)
+        assertEquals(
+          PixKeyReadingOneResponse.Account.AccountType.CHECKING,
+          pixKeyReadingOneResponse.account.accountType
+        )
+      }
+    }
+
+    @Test
+    fun `should return details of the pix key when requesting by key`() {
+      val key: String = UUID.randomUUID().toString()
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = key,
+          clientId = UUID.randomUUID().toString(),
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        PixKeyReadingOneRequest
+          .newBuilder()
+          .setPixKey(key)
+          .build()
+      ).also { pixKeyReadingOneResponse: PixKeyReadingOneResponse ->
+        assertEquals(key, pixKeyReadingOneResponse.key)
+        assertEquals("ITAÚ UNIBANCO S.A.", pixKeyReadingOneResponse.account.institution)
+        assertEquals(
+          PixKeyReadingOneResponse.KeyType.RANDOM,
+          pixKeyReadingOneResponse.keyType
+        )
+        assertEquals("", pixKeyReadingOneResponse.clientId)
+        assertEquals("", pixKeyReadingOneResponse.pixId)
+        assertEquals(
+          PixKeyReadingOneResponse.Account.AccountType.CHECKING,
+          pixKeyReadingOneResponse.account.accountType
+        )
+      }
+    }
+  }
 
   @Nested
   inner class RequestValidationTests {

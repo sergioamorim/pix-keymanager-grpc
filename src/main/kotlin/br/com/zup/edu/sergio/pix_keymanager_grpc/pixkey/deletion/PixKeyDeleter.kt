@@ -9,7 +9,7 @@ import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 class PixKeyDeleter @Inject constructor(
   private val bcbClient: BcbClient,
