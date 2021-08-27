@@ -11,18 +11,9 @@ class CreatePixKeyResponse(
   private val createdAt: LocalDateTime
 ) {
 
-  private val modelKeyType: PixKey.KeyType =
-    when (this.keyType) {
-      KeyType.CPF -> PixKey.KeyType.CPF
-      KeyType.EMAIL -> PixKey.KeyType.EMAIL
-      KeyType.PHONE -> PixKey.KeyType.PHONE_NUMBER
-      KeyType.RANDOM -> PixKey.KeyType.RANDOM
-      KeyType.CNPJ -> PixKey.KeyType.CNPJ
-    }
-
   fun asPixKey(clientId: String): PixKey {
     return PixKey(
-      type = this.modelKeyType,
+      type = this.keyType.modelKeyType(),
       key = this.key,
       clientId = clientId,
       accountType = this.bankAccount.modelAccountType(),

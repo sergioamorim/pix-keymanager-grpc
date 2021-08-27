@@ -38,3 +38,10 @@ fun clientDoesNotOwnPixKeyViolation(): StatusRuntimeException =
     status = io.grpc.Status.PERMISSION_DENIED,
     description = "pix_id must be of a pix key which is owned client"
   )
+
+fun pixIdNotFoundViolation(): StatusRuntimeException =
+  fieldViolation(
+    field = "pix_id",
+    status = io.grpc.Status.NOT_FOUND,
+    description = "pix_id must be the id of an existing pix key"
+  )

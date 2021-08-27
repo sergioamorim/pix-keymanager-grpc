@@ -53,7 +53,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         )
 
         val pixKey: PixKey = this@PixKeyCreationEndpointTests.pixKeyRepository
-          .getById(response.pixId)
+          .getById(id = response.pixId)
 
         assertEquals(PixKey.AccountType.CHECKING, pixKey.accountType)
         assertEquals(clientId, pixKey.clientId)

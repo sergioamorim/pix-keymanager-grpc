@@ -1,10 +1,9 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion.request_validation
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
-import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
+import br.com.zup.edu.sergio.pix_keymanager_grpc.pixIdNotFoundViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
-import io.grpc.Status
 import io.reactivex.Completable
 
 class PixIdExistsMiddleware(
@@ -13,13 +12,7 @@ class PixIdExistsMiddleware(
 
   override fun check(request: PixKeyDeletionRequest): Completable {
     if (!this.pixKeyRepository.existsById(request.pixId)) {
-      return Completable.error(
-        fieldViolation(
-          field = "pix_id",
-          status = Status.NOT_FOUND,
-          description = "pix_id must be the id of an existing pix key"
-        )
-      )
+      return Completable.error(pixIdNotFoundViolation())
     }
 
     return this.checkNext(request = request)

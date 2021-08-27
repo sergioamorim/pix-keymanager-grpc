@@ -20,7 +20,7 @@ class PixKeyCreationEndpoint @Inject constructor(
 ) : PixKeyCreationServiceGrpc.PixKeyCreationServiceImplBase() {
 
   private val requestValidationChain: RequestMiddleware<PixKeyCreationRequest> =
-    KeyUniquenessMiddleware(this.pixKeyRepository)
+    KeyUniquenessMiddleware(pixKeyRepository = this.pixKeyRepository)
 
   init {
     this.requestValidationChain
@@ -38,10 +38,15 @@ class PixKeyCreationEndpoint @Inject constructor(
     pixKeyCreationRequest: PixKeyCreationRequest,
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
-    this.requestValidationChain.check(pixKeyCreationRequest)
+    this.requestValidationChain.check(request = pixKeyCreationRequest)
       .observeOn(this.scheduler)
       .subscribe(
-        { this.proceedPixKeyCreation(pixKeyCreationRequest, responseObserver) },
+        {
+          this.proceedPixKeyCreation(
+            pixKeyCreationRequest = pixKeyCreationRequest,
+            responseObserver = responseObserver
+          )
+        },
         responseObserver::onError
       )
   }
@@ -51,7 +56,7 @@ class PixKeyCreationEndpoint @Inject constructor(
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
     this.pixKeyCreator
-      .createPixKey(pixKeyCreationRequest)
+      .createPixKey(pixKeyCreationRequest = pixKeyCreationRequest)
       .observeOn(this.scheduler)
       .subscribe(responseObserver::completeOnNext, responseObserver::onError)
   }

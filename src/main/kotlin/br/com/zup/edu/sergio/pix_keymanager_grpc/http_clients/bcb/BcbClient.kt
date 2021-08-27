@@ -1,10 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb
 
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Delete
-import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -16,6 +13,9 @@ interface BcbClient {
   fun createPixKey(
     @Body createPixKeyRequest: CreatePixKeyRequest
   ): Single<CreatePixKeyResponse>
+
+  @Get(uri = "/api/v1/pix/keys/{key}", processes = [MediaType.APPLICATION_XML])
+  fun readOnePixKey(@PathVariable key: String): Single<PixKeyDetailsResponse>
 
   @Delete(uri = "/api/v1/pix/keys/{key}", processes = [MediaType.APPLICATION_XML])
   fun deletePixKey(

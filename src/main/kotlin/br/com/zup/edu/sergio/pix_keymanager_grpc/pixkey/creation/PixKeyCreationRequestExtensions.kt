@@ -44,7 +44,7 @@ val PixKeyCreationRequest.hasInvalidType: Boolean
   )
 
 val PixKeyCreationRequest.isClientIdNotAnUuid: Boolean
-  get() = this.clientId.isNotAnUuid()
+  get() = this.clientId.isNotAnUuid
 
 fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
   this.key.length > maxLength

@@ -11,7 +11,7 @@ import io.reactivex.Completable
 class PhoneNumberKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isPhoneNumberKey and request.hasNotAValidPhoneNumberKey) {
+    if (request.isPhoneNumberKey && request.hasNotAValidPhoneNumberKey) {
       return Completable.error(
         fieldViolation(
           field = "key",

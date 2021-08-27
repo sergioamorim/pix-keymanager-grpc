@@ -62,7 +62,7 @@ message PixKeyReadingOneResponse {
   message Account {
     Client client = 1;
     string institution = 2;
-    string agency = 3;
+    string branch = 3;
     string number = 4;
     AccountType account_type = 5;
     google.protobuf.Timestamp creation = 6;
@@ -85,6 +85,7 @@ message PixKeyReadingOneResponse {
     PHONE_NUMBER = 2;
     EMAIL = 3;
     RANDOM = 4;
+    CNPJ = 5;
   }
 }
 

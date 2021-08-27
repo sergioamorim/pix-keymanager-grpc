@@ -1,9 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc
 
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.BcbClient
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.CreatePixKeyRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.CreatePixKeyResponse
-import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.DeletePixKeyRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.DadosDaContaResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.ErpClient
@@ -17,6 +14,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import java.time.LocalDateTime
 import java.util.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.AccountType as BcbAccountType
 
 @Factory
 class MockBeanFactory {
@@ -71,6 +69,27 @@ class MockBeanFactory {
           )
         )
       }
+
+    override fun readOnePixKey(key: String): Single<PixKeyDetailsResponse> {
+      return Single.just(
+        PixKeyDetailsResponse(
+          keyType = KeyType.RANDOM,
+          key = key,
+          bankAccount = BankAccount(
+            participant = "60701190",
+            branch = "0001",
+            accountNumber = "123456",
+            accountType = BcbAccountType.CACC
+          ),
+          owner = Owner(
+            type = Owner.OwnerType.NATURAL_PERSON,
+            name = "owner name",
+            taxIdNumber = "12345678901"
+          ),
+          createdAt = LocalDateTime.now()
+        )
+      )
+    }
 
     override fun deletePixKey(
       key: String, deletePixKeyRequest: DeletePixKeyRequest

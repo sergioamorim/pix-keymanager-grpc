@@ -29,8 +29,8 @@ class PixKeyDeletionEndpoint @Inject constructor(
   init {
     this.requestValidationChain
       .linkWith(PixIdIsUuidMiddleware())
-      .linkWith(PixIdExistsMiddleware(this.pixKeyRepository))
-      .linkWith(ClientOwnsPixKeyMiddleware(this.pixKeyRepository))
+      .linkWith(PixIdExistsMiddleware(pixKeyRepository = this.pixKeyRepository))
+      .linkWith(ClientOwnsPixKeyMiddleware(pixKeyRepository = this.pixKeyRepository))
   }
 
   override fun deletePixKey(
@@ -38,13 +38,13 @@ class PixKeyDeletionEndpoint @Inject constructor(
     responseObserver: StreamObserver<Empty>
   ) {
 
-    this.requestValidationChain.check(pixKeyDeletionRequest)
+    this.requestValidationChain.check(request = pixKeyDeletionRequest)
       .observeOn(this.scheduler)
       .subscribe(
         {
           this.proceedPixKeyDeletion(
             pixKey = this.pixKeyRepository.getById(
-              pixId = pixKeyDeletionRequest.pixId
+              id = pixKeyDeletionRequest.pixId
             ),
             responseObserver = responseObserver
           )
@@ -59,7 +59,7 @@ class PixKeyDeletionEndpoint @Inject constructor(
     this.pixKeyDeleter.deletePixKey(pixKey = pixKey)
       .observeOn(this.scheduler)
       .subscribe(
-        { responseObserver.completeOnNext(Empty.getDefaultInstance()) },
+        { responseObserver.completeOnNext(response = Empty.getDefaultInstance()) },
         responseObserver::onError
       )
   }

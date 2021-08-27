@@ -21,3 +21,4 @@ http-clients:
     server_url: ${ERP_SERVER_URL}
   bcb:
     server_url: ${BCB_SERVER_URL}
+  str-participants-csv-url: ${STR_PARTICIPANTS_CSV_URL}

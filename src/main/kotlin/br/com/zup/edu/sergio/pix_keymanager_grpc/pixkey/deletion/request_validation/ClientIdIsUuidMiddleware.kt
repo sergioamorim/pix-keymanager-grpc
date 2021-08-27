@@ -9,7 +9,7 @@ import io.reactivex.Completable
 class ClientIdIsUuidMiddleware : RequestMiddleware<PixKeyDeletionRequest>() {
 
   override fun check(request: PixKeyDeletionRequest): Completable {
-    if (request.isClientIdNotAnUuid()) {
+    if (request.isClientIdNotAnUuid) {
       return Completable.error(fieldIsNotAnUuidViolation(field = "client_id"))
     }
 

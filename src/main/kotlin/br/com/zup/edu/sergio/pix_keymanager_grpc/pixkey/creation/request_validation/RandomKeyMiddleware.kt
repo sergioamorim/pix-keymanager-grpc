@@ -10,7 +10,7 @@ import io.reactivex.Completable
 class RandomKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
   override fun check(request: PixKeyCreationRequest): Completable {
-    if (request.isRandomKey and request.key.isNotEmpty()) {
+    if (request.isRandomKey && request.key.isNotEmpty()) {
       return Completable.error(
         fieldViolation(
           field = "key",
