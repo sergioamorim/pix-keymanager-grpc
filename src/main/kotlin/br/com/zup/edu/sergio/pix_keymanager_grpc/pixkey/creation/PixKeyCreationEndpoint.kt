@@ -9,8 +9,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.stub.StreamObserver
 import io.reactivex.Scheduler
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 class PixKeyCreationEndpoint @Inject constructor(

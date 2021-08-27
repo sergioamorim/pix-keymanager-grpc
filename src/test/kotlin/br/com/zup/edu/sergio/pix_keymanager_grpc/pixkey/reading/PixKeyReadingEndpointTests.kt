@@ -9,11 +9,11 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingServiceGr
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
-import javax.inject.Inject
 
 @MicronautTest(transactional = false)
 class PixKeyReadingEndpointTests @Inject constructor(

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import io.micronaut.scheduling.annotation.Scheduled
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class StrParticipants @Inject constructor(

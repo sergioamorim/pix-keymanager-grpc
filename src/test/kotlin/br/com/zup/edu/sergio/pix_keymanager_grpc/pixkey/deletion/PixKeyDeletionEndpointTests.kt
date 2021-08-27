@@ -10,12 +10,12 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceG
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
-import javax.inject.Inject
 
 @MicronautTest(transactional = false)
 class PixKeyDeletionEndpointTests @Inject constructor(

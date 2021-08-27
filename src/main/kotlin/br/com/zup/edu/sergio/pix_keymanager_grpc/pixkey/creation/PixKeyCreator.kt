@@ -14,9 +14,9 @@ import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Single
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.hibernate.exception.ConstraintViolationException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class PixKeyCreator @Inject constructor(

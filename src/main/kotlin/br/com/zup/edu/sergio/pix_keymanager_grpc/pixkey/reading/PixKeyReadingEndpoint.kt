@@ -8,8 +8,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneReques
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingServiceGrpc
 import io.grpc.stub.StreamObserver
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 class PixKeyReadingEndpoint @Inject constructor(
