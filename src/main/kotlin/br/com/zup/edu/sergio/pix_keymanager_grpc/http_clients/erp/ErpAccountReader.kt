@@ -6,24 +6,22 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Single
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.publisher.Mono
 
 @Singleton
 class ErpAccountReader @Inject constructor(private val erpClient: ErpClient) {
 
   fun readAccount(
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<DadosDaContaResponse> =
+  ): Mono<DadosDaContaResponse> =
     this.erpClient
       .readAccount(
         clientId = pixKeyCreationRequest.clientId,
         accountType = pixKeyCreationRequest.erpAccountType
       )
-      .onErrorResumeNext { error: Throwable ->
-        Single.error(translatedError(error = error))
-      }
+      .onErrorMap(::translatedError)
 }
 
 private fun translatedError(error: Throwable) =

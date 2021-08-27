@@ -8,9 +8,9 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.stub.StreamObserver
-import io.reactivex.Scheduler
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.scheduler.Scheduler
 
 @Singleton
 class PixKeyCreationEndpoint @Inject constructor(
@@ -38,8 +38,9 @@ class PixKeyCreationEndpoint @Inject constructor(
     pixKeyCreationRequest: PixKeyCreationRequest,
     responseObserver: StreamObserver<PixKeyCreationResponse>
   ) {
-    this.requestValidationChain.check(request = pixKeyCreationRequest)
-      .observeOn(this.scheduler)
+    this.requestValidationChain
+      .check(request = pixKeyCreationRequest)
+      .subscribeOn(this.scheduler)
       .subscribe(
         {
           this.proceedPixKeyCreation(
@@ -57,7 +58,7 @@ class PixKeyCreationEndpoint @Inject constructor(
   ) {
     this.pixKeyCreator
       .createPixKey(pixKeyCreationRequest = pixKeyCreationRequest)
-      .observeOn(this.scheduler)
+      .subscribeOn(this.scheduler)
       .subscribe(responseObserver::completeOnNext, responseObserver::onError)
   }
 }

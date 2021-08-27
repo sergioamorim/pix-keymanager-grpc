@@ -6,13 +6,13 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.hasNotAValidPho
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isPhoneNumberKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class PhoneNumberKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
-  override fun check(request: PixKeyCreationRequest): Completable {
+  override fun check(request: PixKeyCreationRequest): Mono<PixKeyCreationRequest> {
     if (request.isPhoneNumberKey && request.hasNotAValidPhoneNumberKey) {
-      return Completable.error(
+      return Mono.error(
         fieldViolation(
           field = "key",
           status = Status.INVALID_ARGUMENT,

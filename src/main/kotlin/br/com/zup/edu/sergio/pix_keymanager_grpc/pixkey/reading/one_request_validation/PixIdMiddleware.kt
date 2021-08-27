@@ -5,12 +5,12 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldIsNotAnUuidViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.isLocal
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.isPixIdNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class PixIdMiddleware : RequestMiddleware<PixKeyReadingOneRequest>() {
-  override fun check(request: PixKeyReadingOneRequest): Completable {
+  override fun check(request: PixKeyReadingOneRequest): Mono<PixKeyReadingOneRequest> {
     if (request.isLocal && request.isPixIdNotAnUuid) {
-      return Completable.error(fieldIsNotAnUuidViolation(field = "pix_id"))
+      return Mono.error(fieldIsNotAnUuidViolation(field = "pix_id"))
     }
 
     return this.checkNext(request = request)

@@ -10,8 +10,7 @@ import io.micronaut.context.annotation.Replaces
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Completable
-import io.reactivex.Single
+import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.util.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.AccountType as BcbAccountType
@@ -39,27 +38,27 @@ class MockBeanFactory {
   val bcbClient: BcbClient = object : BcbClient {
     override fun createPixKey(
       createPixKeyRequest: CreatePixKeyRequest
-    ): Single<CreatePixKeyResponse> =
+    ): Mono<CreatePixKeyResponse> =
       when (createPixKeyRequest.key) {
         this@MockBeanFactory.bcbCreateReturnsUnprocessableEntityPixKey ->
-          Single.error(
+          Mono.error(
             HttpClientResponseException(
               "", HttpResponse.unprocessableEntity<Any>()
             )
           )
 
         this@MockBeanFactory.bcbCreateReturnsUnknownResponsePixKey ->
-          Single.error(
+          Mono.error(
             HttpClientResponseException("", HttpResponse.serverError<Any>())
           )
 
         this@MockBeanFactory.bcbCreateReturnsHttpClientExceptionPixKey ->
-          Single.error(HttpClientException(""))
+          Mono.error(HttpClientException(""))
 
         this@MockBeanFactory.bcbCreateReturnsUnknownExceptionPixKey ->
-          Single.error(RuntimeException())
+          Mono.error(RuntimeException())
 
-        else -> Single.just(
+        else -> Mono.just(
           CreatePixKeyResponse(
             keyType = createPixKeyRequest.keyType,
             key = createPixKeyRequest.key,
@@ -70,8 +69,8 @@ class MockBeanFactory {
         )
       }
 
-    override fun readOnePixKey(key: String): Single<PixKeyDetailsResponse> {
-      return Single.just(
+    override fun readOnePixKey(key: String): Mono<PixKeyDetailsResponse> {
+      return Mono.just(
         PixKeyDetailsResponse(
           keyType = KeyType.RANDOM,
           key = key,
@@ -93,25 +92,25 @@ class MockBeanFactory {
 
     override fun deletePixKey(
       key: String, deletePixKeyRequest: DeletePixKeyRequest
-    ): Completable =
+    ): Mono<String> =
       when (key) {
         this@MockBeanFactory.bcbDeleteReturnsNotFoundPixKey ->
-          Completable.error(
+          Mono.error(
             HttpClientResponseException("", HttpResponse.notFound<Any>())
           )
 
         this@MockBeanFactory.bcbDeleteReturnsUnknownResponsePixKey ->
-          Completable.error(
+          Mono.error(
             HttpClientResponseException("", HttpResponse.serverError<Any>())
           )
 
         this@MockBeanFactory.bcbDeleteReturnsHttpClientExceptionPixKey ->
-          Completable.error(HttpClientException(""))
+          Mono.error(HttpClientException(""))
 
         this@MockBeanFactory.bcbDeleteReturnsUnknownExceptionPixKey ->
-          Completable.error(RuntimeException())
+          Mono.error(RuntimeException())
 
-        else -> Completable.complete()
+        else -> Mono.just("")
       }
   }
 
@@ -120,23 +119,23 @@ class MockBeanFactory {
   val erpClientMock: ErpClient = object : ErpClient {
     override fun readAccount(
       clientId: String, accountType: AccountType?
-    ): Single<DadosDaContaResponse> =
+    ): Mono<DadosDaContaResponse> =
       when (clientId) {
-        this@MockBeanFactory.erpReadReturnsUnknownResponseClientId -> Single.error(
+        this@MockBeanFactory.erpReadReturnsUnknownResponseClientId -> Mono.error(
           HttpClientResponseException("", HttpResponse.serverError<Any>())
         )
 
-        this@MockBeanFactory.erpReadReturnsNotFoundClientId -> Single.error(
+        this@MockBeanFactory.erpReadReturnsNotFoundClientId -> Mono.error(
           HttpClientResponseException("", HttpResponse.notFound<Any>())
         )
 
         this@MockBeanFactory.erpReadReturnsHttpClientExceptionClientId ->
-          Single.error(HttpClientException(""))
+          Mono.error(HttpClientException(""))
 
         this@MockBeanFactory.erpReadReturnsUnknownExceptionClientId ->
-          Single.error(RuntimeException())
+          Mono.error(RuntimeException())
 
-        else -> Single.just(
+        else -> Mono.just(
           DadosDaContaResponse(
             tipo = accountType ?: AccountType.CONTA_CORRENTE,
             instituicao = DadosDaContaResponse.InstituicaoResponse(

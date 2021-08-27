@@ -4,12 +4,12 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.typeCanNotBeDetermined
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class RequestTypeMiddleware : RequestMiddleware<PixKeyReadingOneRequest>() {
-  override fun check(request: PixKeyReadingOneRequest): Completable {
+  override fun check(request: PixKeyReadingOneRequest): Mono<PixKeyReadingOneRequest> {
     if (request.typeCanNotBeDetermined) {
-      return Completable.error(
+      return Mono.error(
         Status.INVALID_ARGUMENT
           .withDescription("request type can't be determined")
           .augmentDescription(

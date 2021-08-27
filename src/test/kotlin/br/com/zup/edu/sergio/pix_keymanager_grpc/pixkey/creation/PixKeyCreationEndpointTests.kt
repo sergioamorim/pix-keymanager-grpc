@@ -198,6 +198,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
+      statusRuntimeException.assertIsFieldViolationWithADescription(field = "key")
     }
 
     assertFalse(this.pixKeyRepository.existsByKey(key = key))

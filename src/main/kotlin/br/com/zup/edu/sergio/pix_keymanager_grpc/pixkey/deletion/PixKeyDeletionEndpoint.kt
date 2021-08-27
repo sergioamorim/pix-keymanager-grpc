@@ -12,9 +12,9 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-import io.reactivex.Scheduler
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.scheduler.Scheduler
 
 @Singleton
 class PixKeyDeletionEndpoint @Inject constructor(
@@ -39,7 +39,7 @@ class PixKeyDeletionEndpoint @Inject constructor(
   ) {
 
     this.requestValidationChain.check(request = pixKeyDeletionRequest)
-      .observeOn(this.scheduler)
+      .subscribeOn(this.scheduler)
       .subscribe(
         {
           this.proceedPixKeyDeletion(
@@ -57,7 +57,7 @@ class PixKeyDeletionEndpoint @Inject constructor(
     pixKey: PixKey, responseObserver: StreamObserver<Empty>
   ) {
     this.pixKeyDeleter.deletePixKey(pixKey = pixKey)
-      .observeOn(this.scheduler)
+      .subscribeOn(this.scheduler)
       .subscribe(
         { responseObserver.completeOnNext(response = Empty.getDefaultInstance()) },
         responseObserver::onError

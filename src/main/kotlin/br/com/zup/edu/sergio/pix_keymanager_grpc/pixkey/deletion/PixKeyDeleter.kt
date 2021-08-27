@@ -5,22 +5,23 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.DeletePixKeyRe
 import br.com.zup.edu.sergio.pix_keymanager_grpc.isDifferentFromNotFound
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
+import com.google.protobuf.Empty
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Completable
 import jakarta.inject.Inject
+import reactor.core.publisher.Mono
 
 class PixKeyDeleter @Inject constructor(
   private val bcbClient: BcbClient,
   private val pixKeyRepository: PixKeyRepository
 ) {
 
-  fun deletePixKey(pixKey: PixKey): Completable =
+  fun deletePixKey(pixKey: PixKey): Mono<Empty> =
     this.deleteOnBcb(pixKey)
-      .doOnComplete { this.pixKeyRepository.delete(pixKey) }
+      .doOnSuccess { this.pixKeyRepository.delete(pixKey) }
 
-  private fun deleteOnBcb(pixKey: PixKey): Completable =
+  private fun deleteOnBcb(pixKey: PixKey): Mono<Empty> =
     this.bcbClient
       .deletePixKey(
         key = pixKey.key,
@@ -28,9 +29,10 @@ class PixKeyDeleter @Inject constructor(
           key = pixKey.key, participant = pixKey.participant
         )
       )
-      .onErrorResumeNext { error: Throwable ->
-        translatedError(error = error)?.let(Completable::error)
-          ?: Completable.complete()
+      .flatMap { Mono.just(Empty.getDefaultInstance()) }
+      .onErrorResume { error: Throwable ->
+        translatedError(error = error)?.let { Mono.error(it) }
+          ?: Mono.just(Empty.getDefaultInstance())
       }
 }
 

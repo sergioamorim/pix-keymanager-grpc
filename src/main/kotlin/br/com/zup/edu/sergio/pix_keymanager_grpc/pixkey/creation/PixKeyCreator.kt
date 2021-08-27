@@ -13,10 +13,10 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Single
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.hibernate.exception.ConstraintViolationException
+import reactor.core.publisher.Mono
 
 @Singleton
 class PixKeyCreator @Inject constructor(
@@ -27,7 +27,7 @@ class PixKeyCreator @Inject constructor(
 
   fun createPixKey(
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<PixKeyCreationResponse> =
+  ): Mono<PixKeyCreationResponse> =
     this.erpAccountReader
       .readAccount(pixKeyCreationRequest = pixKeyCreationRequest)
       .flatMap { dadosDaContaResponse: DadosDaContaResponse ->
@@ -40,7 +40,7 @@ class PixKeyCreator @Inject constructor(
   private fun createPixKeyWithDadosDaContaResponse(
     pixKeyCreationRequest: PixKeyCreationRequest,
     dadosDaContaResponse: DadosDaContaResponse
-  ): Single<PixKeyCreationResponse> =
+  ): Mono<PixKeyCreationResponse> =
     this
       .creationResult(pixKeyCreationRequest, dadosDaContaResponse)
       .flatMap { createPixKeyResponse: CreatePixKeyResponse ->
@@ -53,7 +53,7 @@ class PixKeyCreator @Inject constructor(
   private fun creationResult(
     pixKeyCreationRequest: PixKeyCreationRequest,
     dadosDaContaResponse: DadosDaContaResponse
-  ): Single<CreatePixKeyResponse> =
+  ): Mono<CreatePixKeyResponse> =
     this.bcbClient
       .createPixKey(
         createPixKeyRequest = CreatePixKeyRequest(
@@ -61,15 +61,13 @@ class PixKeyCreator @Inject constructor(
           dadosDaContaResponse = dadosDaContaResponse
         )
       )
-      .onErrorResumeNext { error: Throwable ->
-        Single.error(translatedError(error = error))
-      }
+      .onErrorMap(::translatedError)
 
   private fun pixCreationResponseOfSavedPixKey(
     createPixKeyResponse: CreatePixKeyResponse,
     pixKeyCreationRequest: PixKeyCreationRequest
-  ): Single<PixKeyCreationResponse> =
-    Single.just(
+  ): Mono<PixKeyCreationResponse> =
+    Mono.just(
       PixKeyCreationResponse
         .newBuilder()
         .setPixId(

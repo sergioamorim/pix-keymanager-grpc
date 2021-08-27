@@ -6,13 +6,13 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.hasNotAValidCpf
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isCpfKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class CpfKeyMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
-  override fun check(request: PixKeyCreationRequest): Completable {
+  override fun check(request: PixKeyCreationRequest): Mono<PixKeyCreationRequest> {
     if (request.isCpfKey && request.hasNotAValidCpfKey) {
-      return Completable.error(
+      return Mono.error(
         fieldViolation(
           field = "key",
           status = Status.INVALID_ARGUMENT,

@@ -4,13 +4,13 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldIsNotAnUuidViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isClientIdNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class ClientIdMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
-  override fun check(request: PixKeyCreationRequest): Completable {
+  override fun check(request: PixKeyCreationRequest): Mono<PixKeyCreationRequest> {
     if (request.isClientIdNotAnUuid) {
-      return Completable.error(fieldIsNotAnUuidViolation(field = "client_id"))
+      return Mono.error(fieldIsNotAnUuidViolation(field = "client_id"))
     }
 
     return this.checkNext(request = request)

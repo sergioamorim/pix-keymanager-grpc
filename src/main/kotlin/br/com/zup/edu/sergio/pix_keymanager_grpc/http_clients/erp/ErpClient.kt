@@ -4,7 +4,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
-import io.reactivex.Single
+import reactor.core.publisher.Mono
 
 @Client("\${http-clients.erp.server_url}")
 interface ErpClient {
@@ -16,5 +16,5 @@ interface ErpClient {
 
     @QueryValue("tipo")
     accountType: AccountType?
-  ): Single<DadosDaContaResponse>
+  ): Mono<DadosDaContaResponse>
 }

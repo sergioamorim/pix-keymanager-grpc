@@ -5,13 +5,13 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.hasInvalidAccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import reactor.core.publisher.Mono
 
 class AccountTypeMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 
-  override fun check(request: PixKeyCreationRequest): Completable {
+  override fun check(request: PixKeyCreationRequest): Mono<PixKeyCreationRequest> {
     if (request.hasInvalidAccountType) {
-      return Completable.error(
+      return Mono.error(
         fieldViolation(
           field = "account_type",
           status = Status.INVALID_ARGUMENT,

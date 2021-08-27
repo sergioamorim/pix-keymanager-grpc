@@ -10,9 +10,9 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRespon
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Single
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.publisher.Mono
 
 @Singleton
 class PixKeyReader @Inject constructor(
@@ -23,7 +23,7 @@ class PixKeyReader @Inject constructor(
 
   fun readOnePixKey(
     pixKeyReadingOneRequest: PixKeyReadingOneRequest
-  ): Single<PixKeyReadingOneResponse> {
+  ): Mono<PixKeyReadingOneResponse> {
     if (pixKeyReadingOneRequest.isLocal) {
       return this.bcbReadOnePixKey(
         key = this.pixKeyRepository.getKeyById(id = pixKeyReadingOneRequest.pixId),
@@ -37,12 +37,12 @@ class PixKeyReader @Inject constructor(
 
   private fun bcbReadOnePixKey(
     key: String, clientId: String = "", pixId: String = ""
-  ): Single<PixKeyReadingOneResponse> {
+  ): Mono<PixKeyReadingOneResponse> {
 
     return this.bcbClient
       .readOnePixKey(key = key)
       .flatMap { pixKeyDetailsResponse: PixKeyDetailsResponse ->
-        Single.just(
+        Mono.just(
           PixKeyReadingOneResponse
             .newBuilder()
             .setPixId(pixId)
@@ -57,9 +57,7 @@ class PixKeyReader @Inject constructor(
             .build()
         )
       }
-      .onErrorResumeNext { error: Throwable ->
-        Single.error(translatedError(error = error))
-      }
+      .onErrorMap(::translatedError)
   }
 }
 

@@ -10,11 +10,13 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingServiceGr
 import io.grpc.stub.StreamObserver
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.scheduler.Scheduler
 
 @Singleton
 class PixKeyReadingEndpoint @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val pixKeyReader: PixKeyReader
+  private val pixKeyReader: PixKeyReader,
+  private val scheduler: Scheduler
 ) : PixKeyReadingServiceGrpc.PixKeyReadingServiceImplBase() {
 
   private val requestOneValidationChain: RequestMiddleware<PixKeyReadingOneRequest> =
@@ -34,6 +36,7 @@ class PixKeyReadingEndpoint @Inject constructor(
   ) {
     this.requestOneValidationChain
       .check(request = pixKeyReadingOneRequest)
+      .subscribeOn(this.scheduler)
       .subscribe(
         {
           this.proceedPixKeyReadingOne(
@@ -52,6 +55,7 @@ class PixKeyReadingEndpoint @Inject constructor(
   ) {
     this.pixKeyReader
       .readOnePixKey(pixKeyReadingOneRequest = pixKeyReadingOneRequest)
+      .subscribeOn(this.scheduler)
       .subscribe(responseObserver::completeOnNext, responseObserver::onError)
   }
 }
