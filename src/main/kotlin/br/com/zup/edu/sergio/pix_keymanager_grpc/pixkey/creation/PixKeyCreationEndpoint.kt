@@ -8,7 +8,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.stub.StreamObserver
-import io.reactivex.Scheduler
+import io.reactivex.rxjava3.core.Scheduler
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 

@@ -3,8 +3,8 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 @Client("\${http-clients.bcb.server-url}")
 interface BcbClient {

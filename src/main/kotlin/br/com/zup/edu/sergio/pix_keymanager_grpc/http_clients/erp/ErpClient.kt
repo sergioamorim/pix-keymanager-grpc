@@ -4,7 +4,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 
 @Client("\${http-clients.erp.server_url}")
 interface ErpClient {

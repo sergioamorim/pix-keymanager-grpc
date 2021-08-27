@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import io.micronaut.scheduling.annotation.Scheduled
-import io.reactivex.Scheduler
+import io.reactivex.rxjava3.core.Scheduler
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.util.*

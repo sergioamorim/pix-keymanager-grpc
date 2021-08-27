@@ -5,7 +5,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.lengthIsGreaterThan
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 class KeyLengthMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
   override fun check(request: PixKeyCreationRequest): Completable {

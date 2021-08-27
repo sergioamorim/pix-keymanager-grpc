@@ -10,7 +10,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRespon
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 

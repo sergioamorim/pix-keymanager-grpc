@@ -4,7 +4,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.typeCanNotBeDetermined
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
 import io.grpc.Status
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 class RequestTypeMiddleware : RequestMiddleware<PixKeyReadingOneRequest>() {
   override fun check(request: PixKeyReadingOneRequest): Completable {

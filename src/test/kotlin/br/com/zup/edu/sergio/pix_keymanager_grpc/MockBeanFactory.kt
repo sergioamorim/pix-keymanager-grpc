@@ -10,8 +10,8 @@ import io.micronaut.context.annotation.Replaces
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*

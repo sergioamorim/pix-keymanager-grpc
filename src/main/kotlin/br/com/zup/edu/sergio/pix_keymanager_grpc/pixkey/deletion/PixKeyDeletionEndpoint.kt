@@ -12,7 +12,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionServiceGrpc
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
-import io.reactivex.Scheduler
+import io.reactivex.rxjava3.core.Scheduler
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 

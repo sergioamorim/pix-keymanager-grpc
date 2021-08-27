@@ -4,7 +4,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixIdNotFoundViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyDeletionRequest
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 class PixIdExistsMiddleware(
   private val pixKeyRepository: PixKeyRepository

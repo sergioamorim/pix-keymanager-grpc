@@ -8,7 +8,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import io.grpc.Status
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 import jakarta.inject.Inject
 
 class PixKeyDeleter @Inject constructor(

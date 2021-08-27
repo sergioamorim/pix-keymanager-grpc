@@ -4,7 +4,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.RequestMiddleware
 import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldIsNotAnUuidViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.creation.isClientIdNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 class ClientIdMiddleware : RequestMiddleware<PixKeyCreationRequest>() {
 

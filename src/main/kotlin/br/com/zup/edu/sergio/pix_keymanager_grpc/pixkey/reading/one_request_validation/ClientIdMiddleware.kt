@@ -5,7 +5,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.fieldIsNotAnUuidViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.isClientIdNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading.isLocal
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 class ClientIdMiddleware : RequestMiddleware<PixKeyReadingOneRequest>() {
   override fun check(request: PixKeyReadingOneRequest): Completable {

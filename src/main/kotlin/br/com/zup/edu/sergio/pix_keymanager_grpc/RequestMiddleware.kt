@@ -1,6 +1,6 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc
 
-import io.reactivex.Completable
+import io.reactivex.rxjava3.core.Completable
 
 abstract class RequestMiddleware<T> {
   private var next: RequestMiddleware<T>? = null
