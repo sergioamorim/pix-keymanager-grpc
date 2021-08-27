@@ -7,11 +7,13 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import reactor.core.scheduler.Scheduler
 import java.util.*
 
 @Singleton
 class StrParticipants @Inject constructor(
-  private val strParticipantsClient: StrParticipantsClient
+  private val strParticipantsClient: StrParticipantsClient,
+  private val scheduler: Scheduler
 ) {
 
   private val objectReader: ObjectReader =
@@ -26,6 +28,7 @@ class StrParticipants @Inject constructor(
   fun updateStrParticipants() {
     this.strParticipantsClient
       .getStrParticipantsCsv()
+      .subscribeOn(this.scheduler)
       .subscribe(
         { strParticipantsCsvByteArray: ByteArray ->
           this.strParticipants = this.objectReader

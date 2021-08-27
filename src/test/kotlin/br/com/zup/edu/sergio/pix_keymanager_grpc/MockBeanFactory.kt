@@ -11,6 +11,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import reactor.core.publisher.Mono
+import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.AccountType as BcbAccountType
@@ -22,6 +23,11 @@ class MockBeanFactory {
   val bcbCreateReturnsUnknownResponsePixKey: String = "+55985124398"
   val bcbCreateReturnsHttpClientExceptionPixKey: String = "+55917894533"
   val bcbCreateReturnsUnknownExceptionPixKey: String = "+55945348090"
+
+  val bcbReadOneReturnsNotFoundPixKey: String = "53631703000184"
+  val bcbReadOneReturnsUnknownResponsePixKey: String = "63741340000193"
+  val bcbReadOneReturnsHttpClientExceptionPixKey: String = "23427836000172"
+  val bcbReadOneReturnsUnknownExceptionPixKey: String = "41805524000137"
 
   val bcbDeleteReturnsNotFoundPixKey: String = "05034262100"
   val bcbDeleteReturnsUnknownResponsePixKey: String = "80756103428"
@@ -69,26 +75,43 @@ class MockBeanFactory {
         )
       }
 
-    override fun readOnePixKey(key: String): Mono<PixKeyDetailsResponse> {
-      return Mono.just(
-        PixKeyDetailsResponse(
-          keyType = KeyType.RANDOM,
-          key = key,
-          bankAccount = BankAccount(
-            participant = "60701190",
-            branch = "0001",
-            accountNumber = "123456",
-            accountType = BcbAccountType.CACC
-          ),
-          owner = Owner(
-            type = Owner.OwnerType.NATURAL_PERSON,
-            name = "owner name",
-            taxIdNumber = "12345678901"
-          ),
-          createdAt = LocalDateTime.now()
+    override fun readOnePixKey(key: String): Mono<PixKeyDetailsResponse> =
+      when (key) {
+        this@MockBeanFactory.bcbReadOneReturnsNotFoundPixKey ->
+          Mono.error(
+            HttpClientResponseException("", HttpResponse.notFound<Any>())
+          )
+
+        this@MockBeanFactory.bcbReadOneReturnsUnknownResponsePixKey ->
+          Mono.error(
+            HttpClientResponseException("", HttpResponse.serverError<Any>())
+          )
+
+        this@MockBeanFactory.bcbReadOneReturnsHttpClientExceptionPixKey ->
+          Mono.error(HttpClientException(""))
+
+        this@MockBeanFactory.bcbReadOneReturnsUnknownExceptionPixKey ->
+          Mono.error(RuntimeException())
+
+        else -> Mono.just(
+          PixKeyDetailsResponse(
+            keyType = KeyType.RANDOM,
+            key = key,
+            bankAccount = BankAccount(
+              participant = "60701190",
+              branch = "0001",
+              accountNumber = "123456",
+              accountType = BcbAccountType.CACC
+            ),
+            owner = Owner(
+              type = Owner.OwnerType.NATURAL_PERSON,
+              name = "owner name",
+              taxIdNumber = "12345678901"
+            ),
+            createdAt = LocalDateTime.now()
+          )
         )
-      )
-    }
+      }
 
     override fun deletePixKey(
       key: String, deletePixKeyRequest: DeletePixKeyRequest
@@ -152,4 +175,15 @@ class MockBeanFactory {
         )
       }
   }
+
+  @get:Bean
+  @get:Replaces(StrParticipantsClient::class)
+  val strParticipantsClientMock: StrParticipantsClient =
+    object : StrParticipantsClient {
+      override fun getStrParticipantsCsv(): Mono<ByteArray> {
+        return Mono.just(
+          File("src/test/resources/ParticipantesSTRport.csv").readBytes()
+        )
+      }
+    }
 }

@@ -6,7 +6,7 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRespon
 import java.time.LocalDateTime
 
 class PixKeyDetailsResponse(
-  val keyType: KeyType,
+  private val keyType: KeyType,
   val key: String,
   private val bankAccount: BankAccount,
   private val owner: Owner,
