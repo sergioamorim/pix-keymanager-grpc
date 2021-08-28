@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse.Account
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
 
 enum class AccountType {
   CACC, SVGS;
@@ -12,9 +12,9 @@ enum class AccountType {
       SVGS -> PixKey.AccountType.SAVINGS
     }
 
-  fun pixKeyReadingOneResponseAccountType(): Account.AccountType =
+  fun protobufAccountType(): ProtobufAccountType =
     when (this) {
-      CACC -> Account.AccountType.CHECKING
-      SVGS -> Account.AccountType.SAVINGS
+      CACC -> ProtobufAccountType.ACCOUNT_TYPE_CHECKING
+      SVGS -> ProtobufAccountType.ACCOUNT_TYPE_SAVINGS
     }
 }

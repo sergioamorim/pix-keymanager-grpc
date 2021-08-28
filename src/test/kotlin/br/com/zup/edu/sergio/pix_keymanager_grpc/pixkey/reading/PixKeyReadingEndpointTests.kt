@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 @MicronautTest(transactional = false)
 class PixKeyReadingEndpointTests @Inject constructor(
@@ -54,14 +56,11 @@ class PixKeyReadingEndpointTests @Inject constructor(
       ).also { pixKeyReadingOneResponse: PixKeyReadingOneResponse ->
         assertEquals(key, pixKeyReadingOneResponse.key)
         assertEquals("ITAÚ UNIBANCO S.A.", pixKeyReadingOneResponse.account.institution)
-        assertEquals(
-          PixKeyReadingOneResponse.KeyType.RANDOM,
-          pixKeyReadingOneResponse.keyType
-        )
+        assertEquals(ProtobufKeyType.KEY_TYPE_RANDOM, pixKeyReadingOneResponse.keyType)
         assertEquals(clientId, pixKeyReadingOneResponse.clientId)
         assertEquals(pixId, pixKeyReadingOneResponse.pixId)
         assertEquals(
-          PixKeyReadingOneResponse.Account.AccountType.CHECKING,
+          ProtobufAccountType.ACCOUNT_TYPE_CHECKING,
           pixKeyReadingOneResponse.account.accountType
         )
       }
@@ -88,14 +87,11 @@ class PixKeyReadingEndpointTests @Inject constructor(
       ).also { pixKeyReadingOneResponse: PixKeyReadingOneResponse ->
         assertEquals(key, pixKeyReadingOneResponse.key)
         assertEquals("ITAÚ UNIBANCO S.A.", pixKeyReadingOneResponse.account.institution)
-        assertEquals(
-          PixKeyReadingOneResponse.KeyType.RANDOM,
-          pixKeyReadingOneResponse.keyType
-        )
+        assertEquals(ProtobufKeyType.KEY_TYPE_RANDOM, pixKeyReadingOneResponse.keyType)
         assertEquals("", pixKeyReadingOneResponse.clientId)
         assertEquals("", pixKeyReadingOneResponse.pixId)
         assertEquals(
-          PixKeyReadingOneResponse.Account.AccountType.CHECKING,
+          ProtobufAccountType.ACCOUNT_TYPE_CHECKING,
           pixKeyReadingOneResponse.account.accountType
         )
       }

@@ -10,6 +10,8 @@ import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 @MicronautTest(transactional = false)
 class PixKeyCreatorTests @Inject constructor(
@@ -37,10 +39,10 @@ class PixKeyCreatorTests @Inject constructor(
     this.pixKeyCreator.createPixKey(
       PixKeyCreationRequest
         .newBuilder()
-        .setType(PixKeyCreationRequest.KeyType.EMAIL)
+        .setType(ProtobufKeyType.KEY_TYPE_EMAIL)
         .setKey(email)
         .setClientId(UUID.randomUUID().toString())
-        .setAccountType(PixKeyCreationRequest.AccountType.CHECKING)
+        .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
         .build()
     ).subscribe(
       {},

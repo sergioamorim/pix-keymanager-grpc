@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 enum class KeyType {
   CPF, CNPJ, PHONE, EMAIL, RANDOM;
@@ -15,12 +15,12 @@ enum class KeyType {
       CNPJ -> PixKey.KeyType.CNPJ
     }
 
-  fun pixKeyReadingOneResponseKeyType(): PixKeyReadingOneResponse.KeyType =
+  fun protobufKeyType(): ProtobufKeyType =
     when (this) {
-      CPF -> PixKeyReadingOneResponse.KeyType.CPF
-      EMAIL -> PixKeyReadingOneResponse.KeyType.EMAIL
-      PHONE -> PixKeyReadingOneResponse.KeyType.PHONE_NUMBER
-      RANDOM -> PixKeyReadingOneResponse.KeyType.RANDOM
-      CNPJ -> PixKeyReadingOneResponse.KeyType.CNPJ
+      CPF -> ProtobufKeyType.KEY_TYPE_CPF
+      EMAIL -> ProtobufKeyType.KEY_TYPE_EMAIL
+      PHONE -> ProtobufKeyType.KEY_TYPE_PHONE
+      RANDOM -> ProtobufKeyType.KEY_TYPE_RANDOM
+      CNPJ -> ProtobufKeyType.KEY_TYPE_CNPJ
     }
 }

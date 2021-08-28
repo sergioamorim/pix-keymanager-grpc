@@ -26,20 +26,6 @@ message PixKeyCreationRequest {
   string key = 2;
   string client_id = 3;
   AccountType account_type = 4;
-
-  enum KeyType {
-    UNKNOWN_KEY_TYPE = 0;
-    CPF = 1;
-    PHONE_NUMBER = 2;
-    EMAIL = 3;
-    RANDOM = 4;
-  }
-
-  enum AccountType {
-    UNKNOWN_ACCOUNT_TYPE = 0;
-    CHECKING = 1;
-    SAVINGS = 2;
-  }
 }
 
 message PixKeyCreationResponse {
@@ -71,25 +57,26 @@ message PixKeyReadingOneResponse {
       string name = 1;
       string national_registry_id = 2;
     }
-
-    enum AccountType {
-      UNKNOWN = 0;
-      CHECKING = 1;
-      SAVINGS = 2;
-    }
-  }
-
-  enum KeyType {
-    UNKNOWN = 0;
-    CPF = 1;
-    PHONE_NUMBER = 2;
-    EMAIL = 3;
-    RANDOM = 4;
-    CNPJ = 5;
   }
 }
 
 message PixKeyDeletionRequest {
   string pix_id = 1;
   string client_id = 2;
+}
+
+
+enum AccountType {
+  ACCOUNT_TYPE_UNSPECIFIED = 0;
+  ACCOUNT_TYPE_CHECKING = 1;
+  ACCOUNT_TYPE_SAVINGS = 2;
+}
+
+enum KeyType {
+  KEY_TYPE_UNSPECIFIED = 0;
+  KEY_TYPE_CPF = 1;
+  KEY_TYPE_PHONE = 2;
+  KEY_TYPE_EMAIL = 3;
+  KEY_TYPE_RANDOM = 4;
+  KEY_TYPE_CNPJ = 5;
 }

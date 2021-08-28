@@ -6,9 +6,6 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.AccountType.CHECKING
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.AccountType.SAVINGS
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest.KeyType.*
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationResponse
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationServiceGrpc
 import io.grpc.Status
@@ -20,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.*
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 @MicronautTest(transactional = false)
 class PixKeyCreationEndpointTests @Inject constructor(
@@ -42,9 +41,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setClientId(clientId)
-          .setType(RANDOM)
+          .setType(ProtobufKeyType.KEY_TYPE_RANDOM)
           .build()
       ).also { response: PixKeyCreationResponse ->
         assertTrue(
@@ -69,10 +68,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setClientId(UUID.randomUUID().toString())
             .setKey(key)
-            .setType(CPF)
+            .setType(ProtobufKeyType.KEY_TYPE_CPF)
             .build()
         )
 
@@ -94,10 +93,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(SAVINGS)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
             .setClientId(UUID.randomUUID().toString())
             .setKey(key)
-            .setType(PHONE_NUMBER)
+            .setType(ProtobufKeyType.KEY_TYPE_PHONE)
             .build()
         )
 
@@ -118,8 +117,8 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setType(EMAIL)
-            .setAccountType(CHECKING)
+            .setType(ProtobufKeyType.KEY_TYPE_EMAIL)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setClientId(UUID.randomUUID().toString())
             .setKey(key)
             .build()
@@ -143,10 +142,10 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(SAVINGS)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
             .setClientId(UUID.randomUUID().toString())
             .setKey(key)
-            .setType(EMAIL)
+            .setType(ProtobufKeyType.KEY_TYPE_EMAIL)
             .build()
         )
 
@@ -169,9 +168,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setClientId(UUID.randomUUID().toString())
-          .setType(RANDOM)
+          .setType(ProtobufKeyType.KEY_TYPE_RANDOM)
           .setKey(key)
           .build()
       )
@@ -190,9 +189,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setClientId(UUID.randomUUID().toString())
-          .setType(CPF)
+          .setType(ProtobufKeyType.KEY_TYPE_CPF)
           .setKey(key)
           .build()
       )
@@ -213,9 +212,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setClientId(this.mockBeanFactory.erpReadReturnsNotFoundClientId)
-          .setType(CPF)
+          .setType(ProtobufKeyType.KEY_TYPE_CPF)
           .setKey(key)
           .build()
       )
@@ -232,9 +231,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setAccountType(SAVINGS)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
           .setClientId(this.mockBeanFactory.erpReadReturnsUnknownResponseClientId)
-          .setType(RANDOM)
+          .setType(ProtobufKeyType.KEY_TYPE_RANDOM)
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
@@ -248,9 +247,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(UUID.randomUUID().toString())
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(this.mockBeanFactory.bcbCreateReturnsUnprocessableEntityPixKey)
           .build()
       )
@@ -271,9 +270,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(UUID.randomUUID().toString())
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(this.mockBeanFactory.bcbCreateReturnsUnknownResponsePixKey)
           .build()
       )
@@ -294,9 +293,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(UUID.randomUUID().toString())
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(this.mockBeanFactory.bcbCreateReturnsHttpClientExceptionPixKey)
           .build()
       )
@@ -317,9 +316,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(UUID.randomUUID().toString())
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(this.mockBeanFactory.bcbCreateReturnsUnknownExceptionPixKey)
           .build()
       )
@@ -342,9 +341,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(this.mockBeanFactory.erpReadReturnsHttpClientExceptionClientId)
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(key)
           .build()
       )
@@ -363,9 +362,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
       this.grpcClient.createPixKey(
         PixKeyCreationRequest
           .newBuilder()
-          .setType(PHONE_NUMBER)
+          .setType(ProtobufKeyType.KEY_TYPE_PHONE)
           .setClientId(this.mockBeanFactory.erpReadReturnsUnknownExceptionClientId)
-          .setAccountType(CHECKING)
+          .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(key)
           .build()
       )
@@ -387,7 +386,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
           PixKeyCreationRequest
             .newBuilder()
             .setClientId(UUID.randomUUID().toString())
-            .setType(PHONE_NUMBER)
+            .setType(ProtobufKeyType.KEY_TYPE_PHONE)
             .setKey(key)
             .build()
         )
@@ -411,9 +410,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setClientId(UUID.randomUUID().toString())
-            .setType(PHONE_NUMBER)
+            .setType(ProtobufKeyType.KEY_TYPE_PHONE)
             .setKey(key)
             .build()
         )
@@ -437,9 +436,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setType(PHONE_NUMBER)
+            .setType(ProtobufKeyType.KEY_TYPE_PHONE)
             .setClientId("random string")
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setKey(key)
             .build()
         )
@@ -464,7 +463,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
           PixKeyCreationRequest
             .newBuilder()
             .setClientId(UUID.randomUUID().toString())
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setKey(key)
             .build()
         )
@@ -488,9 +487,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(SAVINGS)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
             .setClientId(UUID.randomUUID().toString())
-            .setType(EMAIL)
+            .setType(ProtobufKeyType.KEY_TYPE_EMAIL)
             .setKey(key)
             .build()
         )
@@ -512,9 +511,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(SAVINGS)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
             .setClientId(UUID.randomUUID().toString())
-            .setType(CPF)
+            .setType(ProtobufKeyType.KEY_TYPE_CPF)
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
@@ -542,9 +541,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setClientId(UUID.randomUUID().toString())
-            .setType(CPF)
+            .setType(ProtobufKeyType.KEY_TYPE_CPF)
             .setKey(key)
             .build()
         )
@@ -564,9 +563,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(SAVINGS)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
             .setClientId(UUID.randomUUID().toString())
-            .setType(EMAIL)
+            .setType(ProtobufKeyType.KEY_TYPE_EMAIL)
             .setKey(key)
             .build()
         )
@@ -590,9 +589,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         this@PixKeyCreationEndpointTests.grpcClient.createPixKey(
           PixKeyCreationRequest
             .newBuilder()
-            .setAccountType(CHECKING)
+            .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
             .setClientId(UUID.randomUUID().toString())
-            .setType(PHONE_NUMBER)
+            .setType(ProtobufKeyType.KEY_TYPE_PHONE)
             .setKey(key)
             .build()
         )

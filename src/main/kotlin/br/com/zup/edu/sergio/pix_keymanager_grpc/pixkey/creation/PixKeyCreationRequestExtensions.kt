@@ -4,21 +4,23 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb.KeyType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.erp.AccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.isNotAnUuid
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyCreationRequest
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 val PixKeyCreationRequest.isCpfKey: Boolean
-  get() = this.type.equals(PixKeyCreationRequest.KeyType.CPF)
+  get() = this.type.equals(ProtobufKeyType.KEY_TYPE_CPF)
 
 val PixKeyCreationRequest.isPhoneNumberKey: Boolean
-  get() = this.type.equals(PixKeyCreationRequest.KeyType.PHONE_NUMBER)
+  get() = this.type.equals(ProtobufKeyType.KEY_TYPE_PHONE)
 
 val PixKeyCreationRequest.isRandomKey: Boolean
-  get() = this.type.equals(PixKeyCreationRequest.KeyType.RANDOM)
+  get() = this.type.equals(ProtobufKeyType.KEY_TYPE_RANDOM)
 
 val PixKeyCreationRequest.isNotRandomKey: Boolean
   get() = !this.isRandomKey
 
 val PixKeyCreationRequest.isEmailKey: Boolean
-  get() = this.type.equals(PixKeyCreationRequest.KeyType.EMAIL)
+  get() = this.type.equals(ProtobufKeyType.KEY_TYPE_EMAIL)
 
 val PixKeyCreationRequest.hasNotAValidCpfKey: Boolean
   get() = !this.key.matches(Regex(pattern = "^[0-9]{11}\$"))
@@ -31,16 +33,15 @@ val PixKeyCreationRequest.hasNotAValidEmailKey: Boolean
 
 val PixKeyCreationRequest.hasInvalidAccountType: Boolean
   get() = this.accountType !in listOf(
-    PixKeyCreationRequest.AccountType.CHECKING,
-    PixKeyCreationRequest.AccountType.SAVINGS
+    ProtobufAccountType.ACCOUNT_TYPE_CHECKING, ProtobufAccountType.ACCOUNT_TYPE_SAVINGS
   )
 
 val PixKeyCreationRequest.hasInvalidType: Boolean
   get() = this.type !in listOf(
-    PixKeyCreationRequest.KeyType.CPF,
-    PixKeyCreationRequest.KeyType.EMAIL,
-    PixKeyCreationRequest.KeyType.PHONE_NUMBER,
-    PixKeyCreationRequest.KeyType.RANDOM
+    ProtobufKeyType.KEY_TYPE_CPF,
+    ProtobufKeyType.KEY_TYPE_EMAIL,
+    ProtobufKeyType.KEY_TYPE_PHONE,
+    ProtobufKeyType.KEY_TYPE_RANDOM
   )
 
 val PixKeyCreationRequest.isClientIdNotAnUuid: Boolean
@@ -51,10 +52,10 @@ fun PixKeyCreationRequest.lengthIsGreaterThan(maxLength: Int): Boolean =
 
 val PixKeyCreationRequest.bcbKeyType: KeyType
   get() = when (this.type) {
-    PixKeyCreationRequest.KeyType.CPF -> KeyType.CPF
-    PixKeyCreationRequest.KeyType.PHONE_NUMBER -> KeyType.PHONE
-    PixKeyCreationRequest.KeyType.EMAIL -> KeyType.EMAIL
-    PixKeyCreationRequest.KeyType.RANDOM -> KeyType.RANDOM
+    ProtobufKeyType.KEY_TYPE_CPF -> KeyType.CPF
+    ProtobufKeyType.KEY_TYPE_PHONE -> KeyType.PHONE
+    ProtobufKeyType.KEY_TYPE_EMAIL -> KeyType.EMAIL
+    ProtobufKeyType.KEY_TYPE_RANDOM -> KeyType.RANDOM
     else -> throw AssertionError(
       """
         PixKeyCreationRequest.bcbKeyType should never be called with an invalid key 
@@ -66,8 +67,8 @@ val PixKeyCreationRequest.bcbKeyType: KeyType
 
 val PixKeyCreationRequest.erpAccountType: AccountType
   get() = when (this.accountType) {
-    PixKeyCreationRequest.AccountType.CHECKING -> AccountType.CONTA_CORRENTE
-    PixKeyCreationRequest.AccountType.SAVINGS -> AccountType.CONTA_POUPANCA
+    ProtobufAccountType.ACCOUNT_TYPE_CHECKING -> AccountType.CONTA_CORRENTE
+    ProtobufAccountType.ACCOUNT_TYPE_SAVINGS -> AccountType.CONTA_POUPANCA
     else -> throw AssertionError(
       """
         PixKeyCreationRequest.erpAccountType should never be called with an 
