@@ -15,6 +15,8 @@ service PixKeyCreationService {
 
 service PixKeyReadingService {
   rpc ReadOnePixKey(PixKeyReadingOneRequest) returns (PixKeyReadingOneResponse) {}
+
+  rpc ReadAllPixKeys(PixKeyReadingAllRequest) returns (PixKeyReadingAllResponse) {}
 }
 
 service PixKeyDeletionService {
@@ -57,6 +59,23 @@ message PixKeyReadingOneResponse {
       string name = 1;
       string national_registry_id = 2;
     }
+  }
+}
+
+message PixKeyReadingAllRequest {
+  string client_id = 1;
+}
+
+message PixKeyReadingAllResponse {
+  repeated PixKey pix_keys = 1;
+
+  message PixKey {
+    string pix_id = 1;
+    string client_id = 2;
+    KeyType type = 3;
+    string key = 4;
+    AccountType account_type = 5;
+    google.protobuf.Timestamp creation = 6;
   }
 }
 
