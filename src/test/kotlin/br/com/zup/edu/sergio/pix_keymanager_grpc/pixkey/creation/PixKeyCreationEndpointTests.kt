@@ -213,7 +213,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
-          .setClientId(this.mockBeanFactory.erpReadReturnsNotFoundClientId)
+          .setClientId(this.mockBeanFactory.erpReadAccountReturnsNotFoundClientId)
           .setType(ProtobufKeyType.KEY_TYPE_CPF)
           .setKey(key)
           .build()
@@ -232,7 +232,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_SAVINGS)
-          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownResponseClientId)
+          .setClientId(this.mockBeanFactory.erpReadAccountReturnsUnknownResponseClientId)
           .setType(ProtobufKeyType.KEY_TYPE_RANDOM)
           .build()
       )
@@ -342,7 +342,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setType(ProtobufKeyType.KEY_TYPE_PHONE)
-          .setClientId(this.mockBeanFactory.erpReadReturnsHttpClientExceptionClientId)
+          .setClientId(
+            this.mockBeanFactory.erpReadAccountReturnsHttpClientExceptionClientId
+          )
           .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(key)
           .build()
@@ -363,7 +365,7 @@ class PixKeyCreationEndpointTests @Inject constructor(
         PixKeyCreationRequest
           .newBuilder()
           .setType(ProtobufKeyType.KEY_TYPE_PHONE)
-          .setClientId(this.mockBeanFactory.erpReadReturnsUnknownExceptionClientId)
+          .setClientId(this.mockBeanFactory.erpReadAccountReturnsUnknownExceptionClientId)
           .setAccountType(ProtobufAccountType.ACCOUNT_TYPE_CHECKING)
           .setKey(key)
           .build()

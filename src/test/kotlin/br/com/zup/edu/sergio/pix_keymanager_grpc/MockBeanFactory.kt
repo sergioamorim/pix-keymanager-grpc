@@ -34,10 +34,17 @@ class MockBeanFactory {
   val bcbDeleteReturnsHttpClientExceptionPixKey: String = "25198181900"
   val bcbDeleteReturnsUnknownExceptionPixKey: String = "70529885263"
 
-  val erpReadReturnsNotFoundClientId: String = UUID.randomUUID().toString()
-  val erpReadReturnsUnknownResponseClientId: String = UUID.randomUUID().toString()
-  val erpReadReturnsHttpClientExceptionClientId: String = UUID.randomUUID().toString()
-  val erpReadReturnsUnknownExceptionClientId: String = UUID.randomUUID().toString()
+  val erpReadAccountReturnsNotFoundClientId: String = UUID.randomUUID().toString()
+  val erpReadAccountReturnsUnknownResponseClientId: String = UUID.randomUUID().toString()
+  val erpReadAccountReturnsHttpClientExceptionClientId: String =
+    UUID.randomUUID().toString()
+  val erpReadAccountReturnsUnknownExceptionClientId: String = UUID.randomUUID().toString()
+
+  val erpReadClientReturnsNotFoundClientId: String = UUID.randomUUID().toString()
+  val erpReadClientReturnsUnknownResponseClientId: String = UUID.randomUUID().toString()
+  val erpReadClientReturnsHttpClientExceptionClientId: String =
+    UUID.randomUUID().toString()
+  val erpReadClientReturnsUnknownExceptionClientId: String = UUID.randomUUID().toString()
 
   @get:Bean
   @get:Replaces(bean = BcbClient::class)
@@ -140,22 +147,31 @@ class MockBeanFactory {
   @get:Bean
   @get:Replaces(ErpClient::class)
   val erpClientMock: ErpClient = object : ErpClient {
+    override fun readClient(clientId: String): Mono<String> =
+      when (clientId) {
+        this@MockBeanFactory.erpReadClientReturnsNotFoundClientId -> Mono.error(
+          HttpClientResponseException("", HttpResponse.notFound<Any>())
+        )
+
+        else -> Mono.just("")
+      }
+
     override fun readAccount(
       clientId: String, accountType: AccountType?
     ): Mono<DadosDaContaResponse> =
       when (clientId) {
-        this@MockBeanFactory.erpReadReturnsUnknownResponseClientId -> Mono.error(
+        this@MockBeanFactory.erpReadAccountReturnsUnknownResponseClientId -> Mono.error(
           HttpClientResponseException("", HttpResponse.serverError<Any>())
         )
 
-        this@MockBeanFactory.erpReadReturnsNotFoundClientId -> Mono.error(
+        this@MockBeanFactory.erpReadAccountReturnsNotFoundClientId -> Mono.error(
           HttpClientResponseException("", HttpResponse.notFound<Any>())
         )
 
-        this@MockBeanFactory.erpReadReturnsHttpClientExceptionClientId ->
+        this@MockBeanFactory.erpReadAccountReturnsHttpClientExceptionClientId ->
           Mono.error(HttpClientException(""))
 
-        this@MockBeanFactory.erpReadReturnsUnknownExceptionClientId ->
+        this@MockBeanFactory.erpReadAccountReturnsUnknownExceptionClientId ->
           Mono.error(RuntimeException())
 
         else -> Mono.just(

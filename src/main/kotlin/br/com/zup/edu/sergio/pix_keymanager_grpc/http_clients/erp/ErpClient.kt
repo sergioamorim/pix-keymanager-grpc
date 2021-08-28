@@ -9,6 +9,9 @@ import reactor.core.publisher.Mono
 @Client("\${http-clients.erp.server_url}")
 interface ErpClient {
 
+  @Get("/api/v1/clientes/{clientId}")
+  fun readClient(@PathVariable clientId: String): Mono<String>
+
   @Get("/api/v1/clientes/{clientId}/contas")
   fun readAccount(
     @PathVariable

@@ -1,9 +1,10 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.http_clients.bcb
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.StrParticipants
-import br.com.zup.edu.sergio.pix_keymanager_grpc.asGoogleProtobufTimestamp
+import br.com.zup.edu.sergio.pix_keymanager_grpc.googleProtobufTimestamp
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse
 import java.time.LocalDateTime
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.AccountType as ProtobufAccountType
 import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKeyType
 
 class PixKeyDetailsResponse(
@@ -11,7 +12,7 @@ class PixKeyDetailsResponse(
   val key: String,
   private val bankAccount: BankAccount,
   private val owner: Owner,
-  private val createdAt: LocalDateTime
+  val createdAt: LocalDateTime
 ) {
 
   fun asPixKeyReadingOneResponseAccount(
@@ -21,13 +22,16 @@ class PixKeyDetailsResponse(
       .setAccountType(this.bankAccount.protobufAccountType())
       .setBranch(this.bankAccount.branch)
       .setNumber(this.bankAccount.accountNumber)
-      .setCreation(this.createdAt.asGoogleProtobufTimestamp())
+      .setCreation(this.createdAt.googleProtobufTimestamp)
       .setInstitution(
         this.bankAccount.participantName(strParticipants = strParticipants)
       )
       .setClient(this.owner.pixKeyReadingOneResponseAccountClient())
       .build()
 
-  fun pixKeyReadingOneResponseKeyType(): ProtobufKeyType =
-    this.keyType.protobufKeyType()
+  val protobufKeyType: ProtobufKeyType
+    get() = this.keyType.protobufKeyType()
+
+  val protobufAccountType: ProtobufAccountType
+    get() = this.bankAccount.protobufAccountType()
 }

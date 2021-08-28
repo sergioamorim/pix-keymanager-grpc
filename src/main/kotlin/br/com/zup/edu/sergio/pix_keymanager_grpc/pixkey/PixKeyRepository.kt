@@ -2,6 +2,7 @@ package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey
 
 import io.micronaut.data.annotation.Repository
 import io.micronaut.data.jpa.repository.JpaRepository
+import reactor.core.publisher.Flux
 
 @Repository
 interface PixKeyRepository : JpaRepository<PixKey, String> {
@@ -12,4 +13,6 @@ interface PixKeyRepository : JpaRepository<PixKey, String> {
   fun getById(id: String): PixKey
 
   fun getKeyById(id: String): String
+
+  fun findAllByClientId(clientId: String): Flux<PixKeyTinyDao>
 }
