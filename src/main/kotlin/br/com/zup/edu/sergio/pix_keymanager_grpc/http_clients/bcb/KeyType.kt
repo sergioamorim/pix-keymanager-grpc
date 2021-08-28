@@ -10,7 +10,7 @@ enum class KeyType {
     when (this) {
       CPF -> PixKey.KeyType.CPF
       EMAIL -> PixKey.KeyType.EMAIL
-      PHONE -> PixKey.KeyType.PHONE_NUMBER
+      PHONE -> PixKey.KeyType.PHONE
       RANDOM -> PixKey.KeyType.RANDOM
       CNPJ -> PixKey.KeyType.CNPJ
     }

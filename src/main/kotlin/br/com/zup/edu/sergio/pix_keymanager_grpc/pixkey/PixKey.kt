@@ -27,9 +27,7 @@ class PixKey(
   @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
   val id: String? = null
 
-  enum class KeyType { CPF, PHONE_NUMBER, EMAIL, RANDOM, CNPJ }
+  enum class KeyType { CPF, PHONE, EMAIL, RANDOM, CNPJ }
 
-  enum class AccountType {
-    CHECKING, SAVINGS
-  }
+  enum class AccountType { CHECKING, SAVINGS }
 }
