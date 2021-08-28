@@ -28,4 +28,10 @@ class GrpcClientFactory {
     @GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel
   ): PixKeyReadingServiceGrpc.PixKeyReadingServiceBlockingStub =
     PixKeyReadingServiceGrpc.newBlockingStub(channel)
+
+  @Bean
+  fun newPixKeyReadingStub(
+    @GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel
+  ): PixKeyReadingServiceGrpc.PixKeyReadingServiceStub =
+    PixKeyReadingServiceGrpc.newStub(channel)
 }

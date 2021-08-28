@@ -1,7 +1,7 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.deletion
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
-import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolationWithADescription
+import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
@@ -65,9 +65,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.NOT_FOUND)
-
-      statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pix_id")
+      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
     }
   }
 
@@ -93,9 +91,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.PERMISSION_DENIED)
-
-      statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pix_id")
+      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
@@ -113,8 +109,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
 
-      statusRuntimeException
-        .assertIsFieldViolationWithADescription(field = "pix_id")
+      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
     }
   }
 
@@ -129,7 +124,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolationWithADescription(field = "client_id")
+      statusRuntimeException.assertIsFieldViolation(field = "client_id")
     }
   }
 
@@ -145,7 +140,7 @@ class PixKeyDeletionEndpointTests @Inject constructor(
       )
     }.also { statusRuntimeException ->
       statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolationWithADescription(field = "client_id")
+      statusRuntimeException.assertIsFieldViolation(field = "client_id")
     }
   }
 

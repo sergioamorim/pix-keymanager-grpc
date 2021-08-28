@@ -89,15 +89,10 @@ class PixKeyReadingEndpoint @Inject constructor(
     pixKeyReadingAllRequest: PixKeyReadingAllRequest,
     responseObserver: StreamObserver<PixKeyReadingAllResponse>
   ) {
-    val pixKeyReadingAllResponseBuilder: PixKeyReadingAllResponse.Builder =
-      PixKeyReadingAllResponse.newBuilder()
-
     this.pixKeyReader
       .readAllPixKeys(clientId = pixKeyReadingAllRequest.clientId)
       .subscribeOn(this.scheduler)
-      .doAfterTerminate {
-        responseObserver.completeOnNext(pixKeyReadingAllResponseBuilder.build())
-      }
-      .subscribe(pixKeyReadingAllResponseBuilder::addPixKeys, responseObserver::onError)
+      .doAfterTerminate(responseObserver::onCompleted)
+      .subscribe(responseObserver::onNext, responseObserver::onError)
   }
 }

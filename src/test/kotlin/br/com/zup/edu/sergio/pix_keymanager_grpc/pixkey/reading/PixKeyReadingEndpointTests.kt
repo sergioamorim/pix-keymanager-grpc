@@ -1,19 +1,18 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.reading
 
 import br.com.zup.edu.sergio.pix_keymanager_grpc.MockBeanFactory
-import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolationWithADescription
+import br.com.zup.edu.sergio.pix_keymanager_grpc.ResponseObserverMock
+import br.com.zup.edu.sergio.pix_keymanager_grpc.assertIsFieldViolation
 import br.com.zup.edu.sergio.pix_keymanager_grpc.assertStatus
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKey
 import br.com.zup.edu.sergio.pix_keymanager_grpc.pixkey.PixKeyRepository
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingAllRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneRequest
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingOneResponse
-import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.PixKeyReadingServiceGrpc
+import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.*
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -24,7 +23,8 @@ import br.com.zup.edu.sergio.pix_keymanager_grpc.protobuf.KeyType as ProtobufKey
 @MicronautTest(transactional = false)
 class PixKeyReadingEndpointTests @Inject constructor(
   private val pixKeyRepository: PixKeyRepository,
-  private val grpcClient: PixKeyReadingServiceGrpc.PixKeyReadingServiceBlockingStub,
+  private val grpcBlockingClient: PixKeyReadingServiceGrpc.PixKeyReadingServiceBlockingStub,
+  private val grpcClient: PixKeyReadingServiceGrpc.PixKeyReadingServiceStub,
   private val mockBeanFactory: MockBeanFactory
 ) {
 
@@ -38,39 +38,57 @@ class PixKeyReadingEndpointTests @Inject constructor(
     inner class RequestValidationTests {
       @Test
       fun `should return INVALID_AGUMENT when the client_id is not an UUID`() {
-        assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
-            PixKeyReadingAllRequest
-              .newBuilder()
-              .setClientId("not at all an UUID")
-              .build()
-          )
-        }.also { statusRuntimeException: StatusRuntimeException ->
-          statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-          statusRuntimeException.assertIsFieldViolationWithADescription(
-            field = "client_id"
-          )
+        val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+          ResponseObserverMock()
+
+        this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+          PixKeyReadingAllRequest
+            .newBuilder()
+            .setClientId("not at all an UUID")
+            .build(),
+          responseObserverMock.responseObserver
+        )
+
+        responseObserverMock.waitForIt()
+
+        assertTrue(
+          responseObserverMock.error is StatusRuntimeException,
+          "a StatusRuntimeError should be observed but it was not"
+        )
+
+        with(responseObserverMock.error as StatusRuntimeException) {
+          this.assertStatus(status = Status.INVALID_ARGUMENT)
+          this.assertIsFieldViolation(field = "client_id")
         }
       }
 
       @Test
       fun `should return NOT_FOUND when the client_id cant be found on the erp system`() {
-        assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
-            PixKeyReadingAllRequest
-              .newBuilder()
-              .setClientId(
-                this@PixKeyReadingEndpointTests
-                  .mockBeanFactory
-                  .erpReadClientReturnsNotFoundClientId
-              )
-              .build()
-          )
-        }.also { statusRuntimeException: StatusRuntimeException ->
-          statusRuntimeException.assertStatus(status = Status.NOT_FOUND)
-          statusRuntimeException.assertIsFieldViolationWithADescription(
-            field = "client_id"
-          )
+        val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+          ResponseObserverMock()
+
+        this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+          PixKeyReadingAllRequest
+            .newBuilder()
+            .setClientId(
+              this@PixKeyReadingEndpointTests
+                .mockBeanFactory
+                .erpReadClientReturnsNotFoundClientId
+            )
+            .build(),
+          responseObserverMock.responseObserver
+        )
+
+        responseObserverMock.waitForIt()
+
+        assertTrue(
+          responseObserverMock.error is StatusRuntimeException,
+          "a StatusRuntimeError should be observed but it was not"
+        )
+
+        with(responseObserverMock.error as StatusRuntimeException) {
+          this.assertStatus(status = Status.NOT_FOUND)
+          this.assertIsFieldViolation(field = "client_id")
         }
       }
     }
@@ -94,7 +112,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         ).id ?: ""
 
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixId(pixId)
@@ -128,7 +146,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         )
 
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixKey(key)
@@ -154,7 +172,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
       @Test
       fun `should return INVALID_ARGUMENT when the client_id is not an UUID`() {
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest
               .newBuilder()
               .setClientId("not an UUID")
@@ -163,7 +181,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         }.also { statusRuntimeException ->
           statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-          statusRuntimeException.assertIsFieldViolationWithADescription(
+          statusRuntimeException.assertIsFieldViolation(
             field = "client_id"
           )
         }
@@ -172,7 +190,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
       @Test
       fun `should return INVALID_ARGUMENT when the pix_id is not an UUID`() {
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest
               .newBuilder()
               .setClientId(UUID.randomUUID().toString())
@@ -181,14 +199,14 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         }.also { statusRuntimeException ->
           statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-          statusRuntimeException.assertIsFieldViolationWithADescription(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
         }
       }
 
       @Test
       fun `should return INVALID_ARGUMENT when all fields are set`() {
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest
               .newBuilder()
               .setClientId(UUID.randomUUID().toString())
@@ -204,7 +222,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
       @Test
       fun `should return INVALID_ARGUMENT when all fields are empty`() {
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest.getDefaultInstance()
           )
         }.also { statusRuntimeException ->
@@ -225,7 +243,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
         ).id ?: ""
 
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest
               .newBuilder()
               .setPixId(pixId)
@@ -234,14 +252,14 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         }.also { statusRuntimeException ->
           statusRuntimeException.assertStatus(Status.PERMISSION_DENIED)
-          statusRuntimeException.assertIsFieldViolationWithADescription(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
         }
       }
 
       @Test
       fun `should return NOT_FOUND when the pix id can't be found on the database`() {
         assertThrows<StatusRuntimeException> {
-          this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+          this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
             PixKeyReadingOneRequest
               .newBuilder()
               .setPixId(UUID.randomUUID().toString())
@@ -250,7 +268,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
           )
         }.also { statusRuntimeException ->
           statusRuntimeException.assertStatus(Status.NOT_FOUND)
-          statusRuntimeException.assertIsFieldViolationWithADescription(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
         }
       }
     }
@@ -258,7 +276,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
     @Test
     fun `should return UNAVAILABLE when a HttpClientException is thrown when connecting to the bcb one pix key reading service`() {
       assertThrows<StatusRuntimeException> {
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixKey(
@@ -276,7 +294,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
     @Test
     fun `should return NOT_FOUND when a bcb one pix key reading service returns not found`() {
       assertThrows<StatusRuntimeException> {
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixKey(
@@ -294,7 +312,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
     @Test
     fun `should return UNAVAILABLE when a bcb one pix key reading service returns an unknown response`() {
       assertThrows<StatusRuntimeException> {
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixKey(
@@ -312,7 +330,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
     @Test
     fun `should return INTERNAL when an unknown exception is thrown when connecting to the bcb one pix key reading service`() {
       assertThrows<StatusRuntimeException> {
-        this@PixKeyReadingEndpointTests.grpcClient.readOnePixKey(
+        this@PixKeyReadingEndpointTests.grpcBlockingClient.readOnePixKey(
           PixKeyReadingOneRequest
             .newBuilder()
             .setPixKey(

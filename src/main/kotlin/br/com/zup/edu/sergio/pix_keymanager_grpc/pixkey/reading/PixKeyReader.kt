@@ -39,23 +39,10 @@ class PixKeyReader @Inject constructor(
     return this.bcbReadOnePixKey(key = pixKeyReadingOneRequest.pixKey)
   }
 
-  fun readAllPixKeys(clientId: String): Flux<PixKeyReadingAllResponse.PixKey> {
+  fun readAllPixKeys(clientId: String): Flux<PixKeyReadingAllResponse> {
     return this.pixKeyRepository.findAllByClientId(clientId = clientId)
       .flatMap { pixKeyTinyDao: PixKeyTinyDao ->
-        this.bcbClient.readOnePixKey(key = pixKeyTinyDao.key)
-          .map { pixKeyDetailsResponse: PixKeyDetailsResponse ->
-            PixKeyReadingAllResponse.PixKey
-              .newBuilder()
-              .setPixId(pixKeyTinyDao.id)
-              .setClientId(clientId)
-              .setType(pixKeyDetailsResponse.protobufKeyType)
-              .setKey(pixKeyDetailsResponse.key)
-              .setAccountType(pixKeyDetailsResponse.protobufAccountType)
-              .setCreation(pixKeyDetailsResponse.createdAt.googleProtobufTimestamp)
-              .build()
-          }
-          .onErrorResume { Mono.empty() }
-          .flux()
+        this.bcbReadAllPixKeys(pixKeyTinyDao = pixKeyTinyDao, clientId = clientId)
       }
   }
 
@@ -83,6 +70,32 @@ class PixKeyReader @Inject constructor(
       }
       .onErrorMap(::translatedError)
   }
+
+  private fun bcbReadAllPixKeys(
+    pixKeyTinyDao: PixKeyTinyDao, clientId: String
+  ): Flux<PixKeyReadingAllResponse> {
+
+    return this.bcbClient.readOnePixKey(key = pixKeyTinyDao.key)
+      .map { pixKeyDetailsResponse: PixKeyDetailsResponse ->
+        PixKeyReadingAllResponse
+          .newBuilder()
+          .setPixId(pixKeyTinyDao.id)
+          .setClientId(clientId)
+          .setType(pixKeyDetailsResponse.protobufKeyType)
+          .setKey(pixKeyDetailsResponse.key)
+          .setAccountType(pixKeyDetailsResponse.protobufAccountType)
+          .setCreation(pixKeyDetailsResponse.createdAt.googleProtobufTimestamp)
+          .build()
+      }
+      .onErrorResume { error: Throwable ->
+        if (error is HttpClientResponseException && error.isNotFound()) {
+          Mono.empty()
+        } else {
+          Mono.error(translatedError(error = error))
+        }
+      }
+      .flux()
+  }
 }
 
 private fun translatedError(error: Throwable) =
@@ -90,18 +103,18 @@ private fun translatedError(error: Throwable) =
     is HttpClientResponseException -> responseError(error)
 
     is HttpClientException -> Status.UNAVAILABLE
-      .withDescription("bcb one pix key reading service unavailable")
+      .withDescription("bcb pix key reading service unavailable")
       .augmentDescription(
         "unable to create the pix key because the bcb system's " +
-        "one pix key reading service isn't responding"
+        "pix key reading service isn't responding"
       )
       .asRuntimeException()
 
     else -> Status.INTERNAL
-      .withDescription("internal problem on one pix key reading")
+      .withDescription("internal problem on pix key reading")
       .augmentDescription(
         "unexpected behavior when connecting to the bcb system's " +
-        "one pix key reading service"
+        "pix key reading service"
       )
       .asRuntimeException()
   }
@@ -111,15 +124,15 @@ private fun responseError(error: HttpClientResponseException): Throwable {
     return Status.NOT_FOUND
       .withDescription("pix key could not be found within the bcb system")
       .augmentDescription(
-        "the pix key was not found by the bcb system's one pix key reading service"
+        "the pix key was not found by the bcb system's pix key reading service"
       )
       .asRuntimeException()
   }
 
   return Status.UNAVAILABLE
-    .withDescription("bcb one pix key reading service unavailable")
+    .withDescription("bcb pix key reading service unavailable")
     .augmentDescription(
-      "can't read the pix key because the bcb system's one pix key reading " +
+      "can't read the pix key because the bcb system's pix key reading " +
       "service is returning an unknown response"
     )
     .asRuntimeException()
