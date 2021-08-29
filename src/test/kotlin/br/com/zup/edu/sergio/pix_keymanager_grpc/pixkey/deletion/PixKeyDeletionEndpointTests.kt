@@ -63,9 +63,10 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .setClientId(UUID.randomUUID().toString())
           .build()
       )
-    }.also { statusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.NOT_FOUND)
-      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+    }.also { statusRuntimeException: StatusRuntimeException ->
+      statusRuntimeException.assertIsFieldViolation(
+        field = "pix_id", status = Status.NOT_FOUND
+      )
     }
   }
 
@@ -90,8 +91,9 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.PERMISSION_DENIED)
-      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+      statusRuntimeException.assertIsFieldViolation(
+        field = "pix_id", status = Status.PERMISSION_DENIED
+      )
     }
 
     assertTrue(this.pixKeyRepository.existsById(pixId))
@@ -107,9 +109,9 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-
-      statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+      statusRuntimeException.assertIsFieldViolation(
+        field = "pix_id", status = Status.INVALID_ARGUMENT
+      )
     }
   }
 
@@ -123,8 +125,9 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolation(field = "client_id")
+      statusRuntimeException.assertIsFieldViolation(
+        field = "client_id", status = Status.INVALID_ARGUMENT
+      )
     }
   }
 
@@ -139,8 +142,9 @@ class PixKeyDeletionEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolation(field = "client_id")
+      statusRuntimeException.assertIsFieldViolation(
+        field = "client_id", status = Status.INVALID_ARGUMENT
+      )
     }
   }
 

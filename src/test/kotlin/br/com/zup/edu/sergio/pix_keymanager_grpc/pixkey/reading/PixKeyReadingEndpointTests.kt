@@ -57,8 +57,9 @@ class PixKeyReadingEndpointTests @Inject constructor(
         )
 
         with(responseObserverMock.error as StatusRuntimeException) {
-          this.assertStatus(status = Status.INVALID_ARGUMENT)
-          this.assertIsFieldViolation(field = "client_id")
+          this.assertIsFieldViolation(
+            field = "client_id", status = Status.INVALID_ARGUMENT
+          )
         }
       }
 
@@ -87,8 +88,7 @@ class PixKeyReadingEndpointTests @Inject constructor(
         )
 
         with(responseObserverMock.error as StatusRuntimeException) {
-          this.assertStatus(status = Status.NOT_FOUND)
-          this.assertIsFieldViolation(field = "client_id")
+          this.assertIsFieldViolation(field = "client_id", status = Status.NOT_FOUND)
         }
       }
     }
@@ -180,9 +180,8 @@ class PixKeyReadingEndpointTests @Inject constructor(
               .build()
           )
         }.also { statusRuntimeException ->
-          statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
           statusRuntimeException.assertIsFieldViolation(
-            field = "client_id"
+            field = "client_id", status = Status.INVALID_ARGUMENT
           )
         }
       }
@@ -198,8 +197,9 @@ class PixKeyReadingEndpointTests @Inject constructor(
               .build()
           )
         }.also { statusRuntimeException ->
-          statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(
+            field = "pix_id", status = Status.INVALID_ARGUMENT
+          )
         }
       }
 
@@ -251,8 +251,9 @@ class PixKeyReadingEndpointTests @Inject constructor(
               .build()
           )
         }.also { statusRuntimeException ->
-          statusRuntimeException.assertStatus(Status.PERMISSION_DENIED)
-          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(
+            field = "pix_id", status = Status.PERMISSION_DENIED
+          )
         }
       }
 
@@ -267,8 +268,9 @@ class PixKeyReadingEndpointTests @Inject constructor(
               .build()
           )
         }.also { statusRuntimeException ->
-          statusRuntimeException.assertStatus(Status.NOT_FOUND)
-          statusRuntimeException.assertIsFieldViolation(field = "pix_id")
+          statusRuntimeException.assertIsFieldViolation(
+            field = "pix_id", status = Status.NOT_FOUND
+          )
         }
       }
     }

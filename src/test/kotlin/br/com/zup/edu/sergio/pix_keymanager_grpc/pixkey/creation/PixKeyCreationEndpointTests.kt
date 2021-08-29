@@ -196,8 +196,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
           .build()
       )
     }.also { statusRuntimeException: StatusRuntimeException ->
-      statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-      statusRuntimeException.assertIsFieldViolation(field = "key")
+      statusRuntimeException.assertIsFieldViolation(
+        field = "key", status = Status.INVALID_ARGUMENT
+      )
     }
 
     assertFalse(this.pixKeyRepository.existsByKey(key = key))
@@ -393,8 +394,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "account_type")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "account_type", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -417,8 +419,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -441,8 +444,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "client_id")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "client_id", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -464,8 +468,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "type")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "type", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -488,8 +493,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -509,8 +515,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.INVALID_ARGUMENT
+        )
       }
     }
 
@@ -538,8 +545,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.ALREADY_EXISTS)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.ALREADY_EXISTS
+        )
       }
     }
 
@@ -558,8 +566,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(
@@ -582,8 +591,9 @@ class PixKeyCreationEndpointTests @Inject constructor(
             .build()
         )
       }.also { statusRuntimeException: StatusRuntimeException ->
-        statusRuntimeException.assertStatus(status = Status.INVALID_ARGUMENT)
-        statusRuntimeException.assertIsFieldViolation(field = "key")
+        statusRuntimeException.assertIsFieldViolation(
+          field = "key", status = Status.INVALID_ARGUMENT
+        )
       }
 
       assertFalse(

@@ -10,7 +10,7 @@ fun StatusRuntimeException.assertStatus(status: Status) {
   Assertions.assertEquals(status.code, this.status.code, "status does not match")
 }
 
-fun StatusRuntimeException.assertIsFieldViolation(field: String) {
+fun StatusRuntimeException.assertIsFieldViolation(field: String, status: Status) {
   val details: com.google.protobuf.Any? = StatusProto
     .fromThrowable(this)
     ?.getDetails(0)
@@ -27,4 +27,6 @@ fun StatusRuntimeException.assertIsFieldViolation(field: String) {
   Assertions.assertTrue(
     fieldViolation.description.isNotBlank(), "field violation without a description"
   )
+
+  this.assertStatus(status = status)
 }
