@@ -1,6 +1,9 @@
 package br.com.zup.edu.sergio.pix_keymanager_grpc
 
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
+import org.junit.jupiter.api.Assertions
 import kotlin.concurrent.thread
 
 class ResponseObserverMock<T>(private val lifespanMillis: Long = 1000) {
@@ -16,18 +19,37 @@ class ResponseObserverMock<T>(private val lifespanMillis: Long = 1000) {
   val observedValues: Collection<T>
     get() = this.observedValuesBuilder
 
-  var error: Throwable? = null
-    private set
+  private var error: Throwable? = null
 
-  var completed: Boolean = false
-    private set
+  private var completed: Boolean = false
 
-  var timedOut: Boolean = false
+  private var timedOut: Boolean = false
 
   fun waitForIt() {
     while (this.hasNotEnded()) {
       Thread.sleep(1)
     }
+  }
+
+  fun assertFieldViolation(field: String, status: Status) {
+    this.assertStatusRuntimeException()
+    with(this.error as StatusRuntimeException) {
+      this.assertIsFieldViolation(field = field, status = status)
+    }
+  }
+
+  fun assertStatus(status: Status) {
+    this.assertStatusRuntimeException()
+    with(this.error as StatusRuntimeException) {
+      this.assertStatus(status = status)
+    }
+  }
+
+  private fun assertStatusRuntimeException() {
+    Assertions.assertTrue(
+      this.error is StatusRuntimeException,
+      "a StatusRuntimeError should be observed but it was not"
+    )
   }
 
   private fun hasNotEnded(): Boolean {

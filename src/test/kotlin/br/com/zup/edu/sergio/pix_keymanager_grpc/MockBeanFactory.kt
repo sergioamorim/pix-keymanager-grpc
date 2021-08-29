@@ -153,6 +153,16 @@ class MockBeanFactory {
           HttpClientResponseException("", HttpResponse.notFound<Any>())
         )
 
+        this@MockBeanFactory.erpReadClientReturnsUnknownResponseClientId -> Mono.error(
+          HttpClientResponseException("", HttpResponse.serverError<Any>())
+        )
+
+        this@MockBeanFactory.erpReadClientReturnsHttpClientExceptionClientId ->
+          Mono.error(HttpClientException(""))
+
+        this@MockBeanFactory.erpReadClientReturnsUnknownExceptionClientId ->
+          Mono.error(RuntimeException())
+
         else -> Mono.just("")
       }
 
@@ -160,12 +170,12 @@ class MockBeanFactory {
       clientId: String, accountType: AccountType?
     ): Mono<DadosDaContaResponse> =
       when (clientId) {
-        this@MockBeanFactory.erpReadAccountReturnsUnknownResponseClientId -> Mono.error(
-          HttpClientResponseException("", HttpResponse.serverError<Any>())
-        )
-
         this@MockBeanFactory.erpReadAccountReturnsNotFoundClientId -> Mono.error(
           HttpClientResponseException("", HttpResponse.notFound<Any>())
+        )
+
+        this@MockBeanFactory.erpReadAccountReturnsUnknownResponseClientId -> Mono.error(
+          HttpClientResponseException("", HttpResponse.serverError<Any>())
         )
 
         this@MockBeanFactory.erpReadAccountReturnsHttpClientExceptionClientId ->

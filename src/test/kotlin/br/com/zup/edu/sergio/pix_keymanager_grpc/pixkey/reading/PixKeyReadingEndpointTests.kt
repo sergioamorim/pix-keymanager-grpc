@@ -12,7 +12,6 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -51,16 +50,9 @@ class PixKeyReadingEndpointTests @Inject constructor(
 
         responseObserverMock.waitForIt()
 
-        assertTrue(
-          responseObserverMock.error is StatusRuntimeException,
-          "a StatusRuntimeError should be observed but it was not"
+        responseObserverMock.assertFieldViolation(
+          field = "client_id", status = Status.INVALID_ARGUMENT
         )
-
-        with(responseObserverMock.error as StatusRuntimeException) {
-          this.assertIsFieldViolation(
-            field = "client_id", status = Status.INVALID_ARGUMENT
-          )
-        }
       }
 
       @Test
@@ -82,15 +74,73 @@ class PixKeyReadingEndpointTests @Inject constructor(
 
         responseObserverMock.waitForIt()
 
-        assertTrue(
-          responseObserverMock.error is StatusRuntimeException,
-          "a StatusRuntimeError should be observed but it was not"
+        responseObserverMock.assertFieldViolation(
+          field = "client_id", status = Status.NOT_FOUND
+        )
+      }
+
+      @Test
+      fun `should return UNAVAILABLE when the request can't be validated because the erp system's read account service is returning an unknown response`() {
+        val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+          ResponseObserverMock()
+
+        this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+          PixKeyReadingAllRequest
+            .newBuilder()
+            .setClientId(
+              this@PixKeyReadingEndpointTests
+                .mockBeanFactory
+                .erpReadClientReturnsUnknownResponseClientId
+            )
+            .build(),
+          responseObserverMock.responseObserver
         )
 
-        with(responseObserverMock.error as StatusRuntimeException) {
-          this.assertIsFieldViolation(field = "client_id", status = Status.NOT_FOUND)
-        }
+        responseObserverMock.waitForIt()
+        responseObserverMock.assertStatus(status = Status.UNAVAILABLE)
       }
+
+      @Test
+      fun `should return UNAVAILABLE when an HttpClientException is thrown when connecting to the erp system's account reading service`() {
+        val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+          ResponseObserverMock()
+
+        this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+          PixKeyReadingAllRequest
+            .newBuilder()
+            .setClientId(
+              this@PixKeyReadingEndpointTests
+                .mockBeanFactory
+                .erpReadClientReturnsHttpClientExceptionClientId
+            )
+            .build(),
+          responseObserverMock.responseObserver
+        )
+
+        responseObserverMock.waitForIt()
+        responseObserverMock.assertStatus(status = Status.UNAVAILABLE)
+      }
+    }
+
+    @Test
+    fun `should return INTERNAL when an unknown exception is thrown when connecting to the erp system's reading account service`() {
+      val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+        ResponseObserverMock()
+
+      this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+        PixKeyReadingAllRequest
+          .newBuilder()
+          .setClientId(
+            this@PixKeyReadingEndpointTests
+              .mockBeanFactory
+              .erpReadClientReturnsUnknownExceptionClientId
+          )
+          .build(),
+        responseObserverMock.responseObserver
+      )
+
+      responseObserverMock.waitForIt()
+      responseObserverMock.assertStatus(status = Status.INTERNAL)
     }
   }
 
