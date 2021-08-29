@@ -15,9 +15,24 @@ class ResponseObserverMock<T>(private val lifespanMillis: Long = 1000) {
     }
   }
 
-  private val observedValuesBuilder: MutableList<T> = mutableListOf()
-  val observedValues: Collection<T>
+  val observedValues: List<T>
     get() = this.observedValuesBuilder
+
+  val responseObserver: StreamObserver<T> = object : StreamObserver<T> {
+    override fun onNext(value: T) {
+      this@ResponseObserverMock.observedValuesBuilder.add(element = value)
+    }
+
+    override fun onError(error: Throwable) {
+      this@ResponseObserverMock.error = error
+    }
+
+    override fun onCompleted() {
+      this@ResponseObserverMock.completed = true
+    }
+  }
+
+  private val observedValuesBuilder: MutableList<T> = mutableListOf()
 
   private var error: Throwable? = null
 
@@ -45,6 +60,15 @@ class ResponseObserverMock<T>(private val lifespanMillis: Long = 1000) {
     }
   }
 
+  fun assertObservedValuesSize(size: Int) {
+    Assertions.assertEquals(
+      size,
+      this.observedValues.size,
+      "the quantity of expected values differ from the quantity of actually " +
+      "observed values"
+    )
+  }
+
   private fun assertStatusRuntimeException() {
     Assertions.assertTrue(
       this.error is StatusRuntimeException,
@@ -54,19 +78,5 @@ class ResponseObserverMock<T>(private val lifespanMillis: Long = 1000) {
 
   private fun hasNotEnded(): Boolean {
     return !this.completed && null == this.error && !this.timedOut
-  }
-
-  val responseObserver: StreamObserver<T> = object : StreamObserver<T> {
-    override fun onNext(value: T) {
-      this@ResponseObserverMock.observedValuesBuilder.add(element = value)
-    }
-
-    override fun onError(error: Throwable) {
-      this@ResponseObserverMock.error = error
-    }
-
-    override fun onCompleted() {
-      this@ResponseObserverMock.completed = true
-    }
   }
 }

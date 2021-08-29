@@ -12,6 +12,7 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -33,6 +34,147 @@ class PixKeyReadingEndpointTests @Inject constructor(
 
   @Nested
   inner class AllPixKeyReadingTests {
+
+    @Test
+    fun `should return only the bcb system's existing keys of a client`() {
+      val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+        ResponseObserverMock()
+
+      val clientId: String = UUID.randomUUID().toString()
+
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = this@PixKeyReadingEndpointTests
+            .mockBeanFactory
+            .bcbReadOneReturnsNotFoundPixKey,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      val keyA: String = UUID.randomUUID().toString()
+
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = keyA,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      val keyB: String = UUID.randomUUID().toString()
+
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = keyB,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+        PixKeyReadingAllRequest
+          .newBuilder()
+          .setClientId(clientId)
+          .build(),
+        responseObserverMock.responseObserver
+      )
+
+      responseObserverMock.waitForIt()
+
+      responseObserverMock.assertObservedValuesSize(2)
+
+      assertTrue(
+        keyA == responseObserverMock.observedValues[0].key
+        || keyB == responseObserverMock.observedValues[0].key,
+        "observed a key that it should not"
+      )
+
+      if (keyA == responseObserverMock.observedValues[0].key) {
+        assertEquals(
+          keyB,
+          responseObserverMock.observedValues[1].key,
+          "observed a key that it should not"
+        )
+      } else {
+        assertEquals(
+          keyA,
+          responseObserverMock.observedValues[1].key,
+          "observed a key that it should not"
+        )
+      }
+    }
+
+    @Test
+    fun `should return UNAVAILABLE when the bcb system's key reading service returns an unknown response`() {
+      val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+        ResponseObserverMock()
+
+      val clientId: String = UUID.randomUUID().toString()
+
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = this@PixKeyReadingEndpointTests
+            .mockBeanFactory
+            .bcbReadOneReturnsUnknownResponsePixKey,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+        PixKeyReadingAllRequest
+          .newBuilder()
+          .setClientId(clientId)
+          .build(),
+        responseObserverMock.responseObserver
+      )
+
+      responseObserverMock.waitForIt()
+
+      responseObserverMock.assertStatus(status = Status.UNAVAILABLE)
+    }
+
+    @Test
+    fun `should return UNAVAILABLE when an HttpClientException is thrown when connecting to the bcb system's key reading service`() {
+      val responseObserverMock: ResponseObserverMock<PixKeyReadingAllResponse> =
+        ResponseObserverMock()
+
+      val clientId: String = UUID.randomUUID().toString()
+
+      this@PixKeyReadingEndpointTests.pixKeyRepository.save(
+        PixKey(
+          type = PixKey.KeyType.RANDOM,
+          key = this@PixKeyReadingEndpointTests
+            .mockBeanFactory
+            .bcbReadOneReturnsHttpClientExceptionPixKey,
+          clientId = clientId,
+          accountType = PixKey.AccountType.CHECKING,
+          participant = "60701190"
+        )
+      )
+
+      this@PixKeyReadingEndpointTests.grpcClient.readAllPixKeys(
+        PixKeyReadingAllRequest
+          .newBuilder()
+          .setClientId(clientId)
+          .build(),
+        responseObserverMock.responseObserver
+      )
+
+      responseObserverMock.waitForIt()
+
+      responseObserverMock.assertStatus(status = Status.UNAVAILABLE)
+    }
+
     @Nested
     inner class RequestValidationTests {
       @Test

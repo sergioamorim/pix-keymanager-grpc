@@ -14,7 +14,7 @@ interface BcbClient {
   ): Mono<CreatePixKeyResponse>
 
   @Get(uri = "/api/v1/pix/keys/{key}", processes = [MediaType.APPLICATION_XML])
-  fun readOnePixKey(@PathVariable key: String): Mono<PixKeyDetailsResponse>
+  fun readPixKey(@PathVariable key: String): Mono<PixKeyDetailsResponse>
 
   @Delete(uri = "/api/v1/pix/keys/{key}", processes = [MediaType.APPLICATION_XML])
   fun deletePixKey(

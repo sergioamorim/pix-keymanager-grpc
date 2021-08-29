@@ -82,7 +82,7 @@ class MockBeanFactory {
         )
       }
 
-    override fun readOnePixKey(key: String): Mono<PixKeyDetailsResponse> =
+    override fun readPixKey(key: String): Mono<PixKeyDetailsResponse> =
       when (key) {
         this@MockBeanFactory.bcbReadOneReturnsNotFoundPixKey ->
           Mono.error(

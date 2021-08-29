@@ -51,7 +51,7 @@ class PixKeyReader @Inject constructor(
   ): Mono<PixKeyReadingOneResponse> {
 
     return this.bcbClient
-      .readOnePixKey(key = key)
+      .readPixKey(key = key)
       .flatMap { pixKeyDetailsResponse: PixKeyDetailsResponse ->
         Mono.just(
           PixKeyReadingOneResponse
@@ -75,7 +75,7 @@ class PixKeyReader @Inject constructor(
     pixKeyTinyDao: PixKeyTinyDao, clientId: String
   ): Flux<PixKeyReadingAllResponse> {
 
-    return this.bcbClient.readOnePixKey(key = pixKeyTinyDao.key)
+    return this.bcbClient.readPixKey(key = pixKeyTinyDao.key)
       .map { pixKeyDetailsResponse: PixKeyDetailsResponse ->
         PixKeyReadingAllResponse
           .newBuilder()
